@@ -1,0 +1,190 @@
+\documentclass[12pt,a4paper,oneside,draft]{report}
+
+\begin{document}
+
+\title{SimpleDB: Course Project of Compiler Theory}
+\date{\today}
+\author{Sun Jiacheng}
+\maketitle
+
+\chapter{Information}
+\section{Team Information}
+\begin{tabular}{l c r}
+Sun Jiacheng & 12330285 & 291624707@qq.com\\
+Kuang Yuanyuan & 12330153 & 596755905@qq.com\\
+Qiu Zhilin & 12330268 & 847300960@qq.com\\
+Sun Dongliang & 12330284 & 1255993541@qq.com\\
+Wang Kaibin & 12330305 & wkbpluto@qq.com\\
+\end{tabular}
+
+\section{Tarball Structure}
+\begin{verbatim}
+/doc -- documents of project
+/src -- source code
+\end{verbatim}
+
+\section{Compile}
+\begin{verbatim}
+cd ./src
+make -- compile SimpleDB
+make test -- compile and run sample test
+make tar -- tar the project.
+\end{verbatim}
+
+\chapter{Project}
+
+\section{Project Website}
+https://github.com/thomasking0529/SimpleDB\\
+
+\section{Code Style}
+K\&R(CDT's default style)\\ 
+
+\section{Common}
+
+\subsection{Lexer}
+\begin{verbatim}
+enum TokenType:
+    KEYWORD -- actions(create, insert, delete, select),
+          primitives("table" only), case insensitive,
+          "where", properties of table(default, primary
+          key), case insensitive. 
+          
+    ID -- id (identifier) is a sequence of digits, underline
+          and letters. All identifiers should start with a
+          letter or an underline. The maximum length of an
+          identifier is 64.
+          
+    NUM -- num (number) is a sequence of digits. (of 32-bits)
+    
+    OP -- Arithmetical operators: +, -, *, /, unary -, unary +
+          Relational operators: <, >, <>, ==, >=, <=
+          Logical operators: &&, ||, !
+          Assignment operator: =.
+          Basic punctuation("(", ")", ",")
+
+struct Token:
+    TokeType type -- token type.
+    std::string value -- token value, store the original string
+          of token.
+
+\end{verbatim}
+
+\subsection{Parser}
+\begin{verbatim}
+enum Action:
+    CREATE -- create table
+    INSERT -- insert one row to table
+    DELETE -- delete row(s) from table
+    SELECT -- query row(s) from table
+    INVALID -- if unknown keywords detected
+
+enum Op:
+    PLUS, // +, both unary and binary
+    MINUS, // -, both unary and binary
+    MULTIPLY, // *
+    DIVIDE, // /
+    LT, // <
+    GT, // >
+    NE, // <>
+    E, // ==
+    GTE, // >=
+    LTE, // <=
+    AND, // &&
+    OR, // ||
+    NOT, // !
+    EQ, // =
+    LB, // (
+    RB, // )
+    COMMA, // ,
+
+struct Condition:
+    std::string lop -- left operand
+    std::string rop -- right operand
+    Op op -- operator
+
+enum PropType:
+    INT -- int(only)
+
+struct Property:
+    std::string id -- property id
+    PropType type -- property type    
+    std::string default_value -- default value
+    operator== -- operator overloading
+    
+struct Statement:
+    Action act -- action.
+    std::string table -- table to operate on.
+    std::list<std::string> prop_list -- property to return or
+        add, for create and select
+    std::list<Condition> conds -- where clauses, for create,
+        select and delete
+\end{verbatim}
+
+\subsection{Core}
+\begin{verbatim}
+struct Table:
+    std::string id -- table name
+    std::set<Property> -- properties of table
+    std::list<std::string> -- values of properties, in 1-D array
+    void insert(const std::list<std::string>& record) -- insert
+     
+\end{verbatim}
+
+\section{Design}
+How you implement.
+Time and space complexity.
+\subsection{Lexer}
+Lexer reads a single string of statement and extracts tokens from it.
+\subsubsection{APIs}
+\begin{verbatim}
+Constructor:
+    Initialization.
+std::list<Token> GetTokens(const std::string& statement):
+    Get a string of statement and return a list of tokens extracted.
+    Do token validation.
+\end{verbatim}
+
+\subsection{Parser}
+Parser get a list of tokens and return a single statement.
+\subsubsection{APIs}
+\begin{verbatim}
+Constructor:
+    Initialization.
+Statement Parse(std::list<Token> token_list)
+    Parse token list to statement.
+    Invoke separated parse function.
+    Do grammar validation.
+\end{verbatim}
+
+\subsection{Core}
+Core part of SimpleDB is supposed to manage the "true" database in memory.\\
+\subsubsection{APIs}
+\begin{verbatim}
+Constructor:
+    Initialization.
+void Execute(std::string)
+    Execute a single statement.
+    Invoke private member function.
+    Check consistency. 
+\end{verbatim}
+
+\section{Distribution}
+\subsection{Lexer implementation}
+\subsection{parseCreate and parseInsert}
+\subsection{parseDelete and parseSelect}
+\subsection{parseWhere}
+\subsection{Core}
+
+\section{Test}
+● A test sample contains:
+– a single statement or several statements to test the
+program
+– what is this test sample for
+– what's the expected output
+– does the program work correctly
+● TAs will have their own test samples to test
+your program.
+● Test document: does the interpreter work?
+– Test samples and screenshots
+
+\end{document}
