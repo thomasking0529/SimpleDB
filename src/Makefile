@@ -1,7 +1,7 @@
 default: all
 	
 all:
-	g++ -c *.cpp
+	g++ -c *.cpp -g -std=c++11
 	g++ *.o -o SimpleDB
 	
 test:
