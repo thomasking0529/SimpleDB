@@ -114,7 +114,7 @@ struct Statement {
 	 * list of primary key
 	 * used with create
 	 */
-	std::list<std::string> key_list;
+	std::string key;
 
 	/*
 	 * value list, only for insert
@@ -199,9 +199,9 @@ private:
 	 *
 	 */
 
+	Condition parseWhere(std::list<Token> ts);
+
 	/*WHERE
-	 * Return paired and reduced condition list
-	 *
 	 * where_clause → where conjunct_list | ε
 	 *     conjunct_list → bool | conjunct_list && bool
 	 *     bool →operand rop operand

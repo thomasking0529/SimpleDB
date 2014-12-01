@@ -13,6 +13,12 @@ Parser::Parser() {
 
 Statement Parser::Parse(const std::string& s) {
 	std::list<Token> ts = lexer->GetTokens(s);
+	//use parseWhere to parse where statement
 	Statement st;
 	return st;
+}
+
+Condition Parser::parseWhere(std::list<Token> ts) {
+	Condition c;
+	return c;
 }

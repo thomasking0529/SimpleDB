@@ -12,16 +12,28 @@
 #include "Parser.hpp"
 #include <set>
 
+struct Row {
+	std::list<std::string> cols;
+};
+
 struct Table {
 	//table id
 	std::string id;
 	//table props
-	std::set<Property> props;
+	std::list<Property> props;
+	//primary key
+	std::string key;
 	//use string to store various type of values
-	std::list<std::string> rows;
+	std::list<Row> rows;
 	//insert a record to table
 	//if value not specified, use default value
 	void insert(const std::list<std::string>& record);
+	Table(const std::string& i, const std::string& k,
+			const std::list<Property>& p) {
+		key = k;
+		id = i;
+		props = p;
+	}
 };
 
 /*
@@ -63,6 +75,7 @@ private:
 	 * Specially, for a query, print the result in a neat
 	 * way. The effect should be similar to:
 	 */
+
 	/*
 	 * Error handling:
 	 *    Do nothing but print meaningful message if a statement
