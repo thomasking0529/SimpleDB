@@ -111,6 +111,12 @@ struct Statement {
 	std::list<Property> prop_list;
 
 	/*
+	 * list of primary key
+	 * used with create
+	 */
+	std::list<std::string> key_list;
+
+	/*
 	 * value list, only for insert
 	 */
 	std::list<std::string> value_list;
