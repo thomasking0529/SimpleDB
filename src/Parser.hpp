@@ -35,18 +35,39 @@ enum Op {
 	COMMA, // ,
 };
 
+/*
+ * reduce to boolean tree
+ * only contains boolean operations for <id, num> pairs
+ */
+
 struct Condition {
+	/*
+	 * operand
+	 * 		ID
+	 * 		NUM
+	 */
+	std::string opd;
 	// left operand
-	std::string lop;
-	// right operand
-	std::string rop;
+	Condition* lc;
+	//right
+	Condition* rc;
 	// operator
 	Op op;
 };
 
 /*
+ * parser tree:
+ * tree->ID OP NUM
+ * 		| ID OP ID
+ * 		| NUM OP NUM
+ * 		| NUM OP ID
+ * 		| tree OP tree
+ */
+
+/*
  * Only int current
  */
+
 enum PropType {
 	INT,
 };
@@ -63,7 +84,7 @@ struct Property {
 	 */
 	PropType type;
 	/*
-	 0 for default value
+	 default 0 for default value
 	 */
 	std::string default_value;
 
@@ -87,14 +108,18 @@ struct Statement {
 	 * list of properties to return
 	 * used with select and create
 	 */
-
 	std::list<Property> prop_list;
 
 	/*
-	 * list of conditions
-	 * used with where
+	 * value list, only for insert
 	 */
-	std::list<Condition> conds;
+	std::list<std::string> value_list;
+
+	/*
+	 * boolean tree
+	 * NULL for none(insert and
+	 */
+	Condition* cond;
 };
 
 /*ERROR Handling
@@ -141,8 +166,6 @@ private:
 	 *   # of columns in primary key declaration <= 100
 	 */
 
-	Statement parseCreate(const std::list<Token>& token_list);
-
 	/*INSERT
 	 *
 	 * insert_stmt → insert into id(column_list) values (value_list);
@@ -153,8 +176,6 @@ private:
 	 *    # of columns should equal to # of values
 	 */
 
-	Statement parseInsert(const std::list<Token>& token_list);
-
 	/*DELETE
 	 *
 	 * delete_stmt → delete from id where_clause;
@@ -162,8 +183,6 @@ private:
 	 * To check:
 	 *
 	 */
-
-	Statement parseDelete(const std::list<Token>& token_list);
 
 	/*SELECT
 	 *
@@ -173,8 +192,6 @@ private:
 	 * To check:
 	 *
 	 */
-
-	Statement parseSelect(const std::list<Token>& token_list);
 
 	/*WHERE
 	 * Return paired and reduced condition list
@@ -188,35 +205,11 @@ private:
 	 * To check
 	 *
 	 */
-
-	std::list<Condition> parseWhere(const std::list<Token>& token_list);
+	Lexer* lexer;
 
 public:
 	Parser();
-	Statement Parse(const std::list<Token>& token_list) {
-		TokenType t = token_list.front().type;
-
-		Statement wt;
-		wt.act = INVALID;
-		if (t != KEYWORD) {
-			std::cerr << "Illegal \n";
-			return wt;
-		}
-
-		std::string op_type = token_list.front().value;
-		if (op_type == "CREATE") {
-			return parseSelect(token_list);
-		} else if (op_type == "INSERT") {
-			return parseInsert(token_list);
-		} else if (op_type == "DELETE") {
-			return parseDelete(token_list);
-		} else if (op_type == "SELECT") {
-			return parseSelect(token_list);
-		} else {
-			std::cerr << "Unknown Keywords\n";
-			return wt;
-		}
-	}
+	Statement Parse(const std::string& s);
 };
 
 #endif /* PARSER_HPP_ */

@@ -8,44 +8,11 @@
 #include "Parser.hpp"
 
 Parser::Parser() {
-
+	lexer = new Lexer();
 }
 
-Statement Parser::parseCreate(const std::list<Token>& token_list) {
-	//TODO
-
-	Statement ret;
-	return ret;
-}
-
-Statement Parser::parseInsert(const std::list<Token>& token_list) {
-	//TODO
-
-	Statement ret;
-	return ret;
-}
-
-Statement Parser::parseDelete(const std::list<Token>& token_list) {
-	//TODO
-	//use parseWhere to generate a list of conditions
-
-	Statement ret;
-	return ret;
-}
-
-Statement Parser::parseSelect(const std::list<Token>& token_list) {
-	//TODO
-	//use parseWhere to generate a list of conditions
-
-	Statement ret;
-	return ret;
-}
-
-std::list<Condition> Parser::parseWhere(const std::list<Token> & token_list) {
-	//TODO
-
-	std::list<Condition> ret;
-
-	return ret;
-
+Statement Parser::Parse(const std::string& s) {
+	std::list<Token> ts = lexer->GetTokens(s);
+	Statement st;
+	return st;
 }

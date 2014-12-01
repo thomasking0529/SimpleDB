@@ -57,7 +57,6 @@ struct Table {
 
 class SimpleDB {
 private:
-	Lexer* lexer;
 	Parser* parser;
 	std::list<Table> tables;
 	/*
@@ -74,12 +73,10 @@ private:
 
 public:
 	SimpleDB() {
-		lexer = new Lexer();
 		parser = new Parser();
 	}
-	void Execute(std::string stmt) {
-		std::list<Token> a = lexer->GetTokens(stmt);
-		Statement s = parser->Parse(a);
+	void Execute(const std::string& stmt) {
+		Statement s = parser->Parse(stmt);
 		Execute(s);
 	}
 };
