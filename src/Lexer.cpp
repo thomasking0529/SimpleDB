@@ -94,10 +94,8 @@ bool is_keyword(const std::string& s) {
 
 std::list<Token> Lexer::GetTokens(const std::string& a) {
 	std::list<std::string> tmp = split(a);
-	std::list<std::string>::iterator ite;
 	std::list<Token> ret;
-	for (ite = tmp.begin(); ite != tmp.end(); ite++) {
-		std::string t = *ite;
+	for (auto& t : tmp) {
 		if (is_keyword(t)) {
 			std::for_each(t.begin(), t.end(), to_upper);
 			ret.push_back(Token(KEYWORD, t));
