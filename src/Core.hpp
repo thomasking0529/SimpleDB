@@ -23,9 +23,13 @@ struct Row {
 		return key < r.key;
 	}
 
-	Row(const std::vector<int>& c, int k_idx) {
-		key = c[k_idx];
+	Row(const std::vector<int>& c, int k_idx, int count) {
 		cols = c;
+		if (k_idx != -1) {
+			key = c[k_idx];
+		} else {
+			key = count;
+		}
 	}
 };
 
@@ -37,6 +41,8 @@ struct Table {
 	//primary key index
 	//-1 for no primary key
 	int key_idx;
+	//if no primary key, used for search
+	unsigned long long count;
 	//use string to store various type of values
 	std::set<Row> rows;
 	//insert a record to table
@@ -45,6 +51,7 @@ struct Table {
 	void Delete(const Condition* cond);
 
 	Table(const std::string& i, int ki, const std::vector<Property>& p) {
+		count = 1;
 		key_idx = ki;
 		id = i;
 		props = p;

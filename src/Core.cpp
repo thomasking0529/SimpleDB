@@ -8,11 +8,12 @@
 #include "Core.hpp"
 
 void Table::Insert(const std::vector<int>& a) {
-	Row tmp = Row(a, key_idx);
+	Row tmp = Row(a, key_idx, count);
 	if (rows.find(tmp) != rows.end()) {
 		std::cerr << "Key value conflicts!\n";
 	} else {
 		rows.insert(tmp);
+		count++;
 	}
 }
 void Table::Delete(const Condition* cond) {
@@ -20,6 +21,7 @@ void Table::Delete(const Condition* cond) {
 	 * TODO:
 	 * check condition
 	 * delete rows;
+	 * don't decrease count
 	 */
 }
 
