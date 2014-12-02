@@ -18,7 +18,8 @@ Statement Parser::Parse(const std::string& s) {
 	return st;
 }
 
-Condition Parser::parseWhere(std::list<Token> ts) {
-	Condition c;
+Condition* Parser::parseWhere(std::list<Token> ts) {
+	//example:
+	Condition* c = new Condition(NE);
 	return c;
 }

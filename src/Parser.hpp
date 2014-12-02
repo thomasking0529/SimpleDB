@@ -15,29 +15,35 @@ enum Action {
 	CREATE, DELETE, INSERT, QUERY, INVALID,
 };
 
-enum Op {
+//arithmetic operators
+//for parser only
+enum ArithOp {
 	PLUS, // +, both unary and binary
 	MINUS, // -, both unary and binary
 	MULTIPLY, // *
 	DIVIDE, // /
-	LT, // <
-	GT, // >
-	NE, // <>
-	E, // ==
-	GTE, // >=
-	LTE, // <=
-	AND, // &&
-	OR, // ||
-	NOT, // !
-	EQ, // =
+	E, // =
 	LB, // (
 	RB, // )
 	COMMA, // ,
 };
 
+//boolean operators
+enum BoolOp {
+	LT, // <
+	GT, // >
+	NE, // <>
+	EQ, // ==
+	GTE, // >=
+	LTE, // <=
+	AND, // &&
+	OR, // ||
+	NOT, // !
+};
+
 /*
  * reduce to boolean tree
- * only contains boolean operations for <id, num> pairs
+ * only contains boolean operations for <id, num> or <id, id> pairs
  */
 
 struct Condition {
@@ -46,13 +52,23 @@ struct Condition {
 	 * 		ID
 	 * 		NUM
 	 */
+	// operator
+	BoolOp op;
+
+	//TODO:
+	//use isNum and isId to check opd
 	std::string opd;
+
 	// left operand
 	Condition* lc;
+
 	//right
 	Condition* rc;
-	// operator
-	Op op;
+
+	Condition(BoolOp o) {
+		op = o;
+		lc = rc = NULL;
+	}
 };
 
 /*
@@ -62,15 +78,8 @@ struct Condition {
  * 		| NUM OP NUM
  * 		| NUM OP ID
  * 		| tree OP tree
+ * NOT operator generate right subtree
  */
-
-/*
- * Only int current
- */
-
-enum PropType {
-	INT,
-};
 
 struct Property {
 	/*
@@ -79,14 +88,11 @@ struct Property {
 	 * length of an identifier is 64.
 	 */
 	std::string id;
+
 	/*
-	 * property type
+	 default 0 for default value if no default specified
 	 */
-	PropType type;
-	/*
-	 default 0 for default value
-	 */
-	std::string default_value;
+	int default_value;
 
 	bool operator==(const Property& o) {
 		return o.id == id;
@@ -108,18 +114,19 @@ struct Statement {
 	 * list of properties to return
 	 * used with select and create
 	 */
-	std::list<Property> prop_list;
+	std::vector<Property> prop_list;
 
 	/*
-	 * list of primary key
+	 * location of primary key
 	 * used with create
+	 * -1 for no primary key
 	 */
-	std::string key;
+	int key_idx;
 
 	/*
 	 * value list, only for insert
 	 */
-	std::list<std::string> value_list;
+	std::vector<int> value_list;
 
 	/*
 	 * boolean tree
@@ -199,7 +206,7 @@ private:
 	 *
 	 */
 
-	Condition parseWhere(std::list<Token> ts);
+	Condition* parseWhere(std::list<Token> ts);
 
 	/*WHERE
 	 * where_clause → where conjunct_list | ε

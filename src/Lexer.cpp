@@ -7,6 +7,18 @@
 
 #include "Lexer.hpp"
 
+bool isNum(const std::string& s) {
+	if (s[0] >= '0' && s[0] <= '9') {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+bool isId(const std::string& s) {
+	return !isNum(s);
+}
+
 Lexer::Lexer() {
 	symbols.insert('+');
 	symbols.insert('-');
@@ -29,6 +41,7 @@ Lexer::Lexer() {
 	ops.insert("<=");
 	ops.insert(">");
 	ops.insert(">=");
+	ops.insert("=");
 	ops.insert("==");
 	ops.insert("&&");
 	ops.insert("||");
@@ -86,7 +99,8 @@ bool is_keyword(const std::string& s) {
 	std::string t = s;
 	std::for_each(t.begin(), t.end(), to_upper);
 	if (t == "SELECT" || t == "FROM" || t == "WHERE" || t == "DELETE"
-			|| t == "TABLE") {
+			|| t == "TABLE" || t == "CREATE" || t == "INT" || t == "VALUES"
+			|| t == "PRIMARY" || t == "KEY" || t == "DEFAULT") {
 		return true;
 	}
 	return false;
@@ -139,6 +153,7 @@ std::list<std::string> Lexer::split(const std::string& s) {
 		} else if ((s[i] >= 'a' && s[i] <= 'z') || (s[i] >= 'A' && s[i] <= 'Z')
 				|| (s[i] >= '0' && s[i] <= '9')) {
 			t += s[i];
+			//< <= <>
 		} else if (s[i] == '<') {
 			if (t != "") {
 				ret.push_back(t);
@@ -153,6 +168,7 @@ std::list<std::string> Lexer::split(const std::string& s) {
 			} else {
 				ret.push_back("<");
 			}
+			//> >=
 		} else if (s[i] == '>') {
 			if (t != "") {
 				ret.push_back(t);
@@ -164,8 +180,21 @@ std::list<std::string> Lexer::split(const std::string& s) {
 			} else {
 				ret.push_back("<");
 			}
-
-		} else if (s[i] == '&' || s[i] == '|' || s[i] == '=') {
+			//= ==
+			//= = will be interpreted as two "="
+		} else if (s[i] == '=') {
+			if (t != "") {
+				ret.push_back(t);
+				t = "";
+			}
+			if (s[i + 1] == '=') {
+				ret.push_back("==");
+				i++;
+			} else {
+				ret.push_back("=");
+			}
+			//&& ||
+		} else if (s[i] == '&' || s[i] == '|') {
 			if (t != "") {
 				ret.push_back(t);
 				t = "";

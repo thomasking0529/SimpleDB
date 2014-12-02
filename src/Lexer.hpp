@@ -16,6 +16,13 @@
 #include <cstdlib>
 #include <iostream>
 
+/*
+ * common functions
+ */
+
+bool isNum(const std::string& s);
+bool isId(const std::string& s);
+
 enum TokenType {
 	KEYWORD, ID, NUM, OP
 };

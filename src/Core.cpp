@@ -7,15 +7,28 @@
 
 #include "Core.hpp"
 
-void Table::insert(const std::list<std::string>& a) {
-
+void Table::Insert(const std::vector<int>& a) {
+	Row tmp = Row(a, key_idx);
+	if (rows.find(tmp) != rows.end()) {
+		std::cerr << "Key value conflicts!\n";
+	} else {
+		rows.insert(tmp);
+	}
+}
+void Table::Delete(const Condition* cond) {
+	/*
+	 * TODO:
+	 * check condition
+	 * delete rows;
+	 */
 }
 
 void SimpleDB::Execute(const Statement& stmt) {
 	switch (stmt.act) {
 	case CREATE: {
-		Table t(stmt.table, stmt.key, stmt.prop_list);
-		tables.push_back(t);
+		Table t(stmt.table, stmt.key_idx, stmt.prop_list);
+		//check if exists
+		tables.insert(t);
 	}
 		break;
 	case DELETE:
@@ -23,11 +36,12 @@ void SimpleDB::Execute(const Statement& stmt) {
 		break;
 	case INSERT:
 		//TODO
+		//check key conflicts using set<>keys
 		break;
 	case QUERY:
 		//TODO
 		break;
 	default:
-		std::cerr << "Unkown Action\n";
+		std::cerr << "Unknown Action\n";
 	}
 }

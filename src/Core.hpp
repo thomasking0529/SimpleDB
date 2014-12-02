@@ -13,26 +13,44 @@
 #include <set>
 
 struct Row {
-	std::list<std::string> cols;
+	int key;
+	std::vector<int> cols;
+	bool operator==(const Row& r) const {
+		return key == r.key;
+	}
+
+	bool operator<(const Row& r) const {
+		return key < r.key;
+	}
+
+	Row(const std::vector<int>& c, int k_idx) {
+		key = c[k_idx];
+		cols = c;
+	}
 };
 
 struct Table {
 	//table id
 	std::string id;
 	//table props
-	std::list<Property> props;
-	//primary key
-	std::string key;
+	std::vector<Property> props;
+	//primary key index
+	//-1 for no primary key
+	int key_idx;
 	//use string to store various type of values
-	std::list<Row> rows;
+	std::set<Row> rows;
 	//insert a record to table
 	//if value not specified, use default value
-	void insert(const std::list<std::string>& record);
-	Table(const std::string& i, const std::string& k,
-			const std::list<Property>& p) {
-		key = k;
+	void Insert(const std::vector<int>& record);
+	void Delete(const Condition* cond);
+
+	Table(const std::string& i, int ki, const std::vector<Property>& p) {
+		key_idx = ki;
 		id = i;
 		props = p;
+	}
+	bool operator<(const Table& t) const {
+		return id < t.id;
 	}
 };
 
@@ -70,7 +88,7 @@ struct Table {
 class SimpleDB {
 private:
 	Parser* parser;
-	std::list<Table> tables;
+	std::set<Table> tables;
 	/*
 	 * Specially, for a query, print the result in a neat
 	 * way. The effect should be similar to:
