@@ -20,6 +20,7 @@ int main(int argc, char *argv[]) {
 
 		while (std::getline(fin, es)) {
 			std::cout << "Line " << line_count << ": " << es << std::endl;
+			line_count++;
 			db->Execute(es);
 		}
 	} else {
