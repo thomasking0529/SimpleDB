@@ -21,7 +21,6 @@ int main(int argc, char *argv[]) {
 		while (std::getline(fin, es)) {
 			std::cout << "Line " << line_count << ": " << es << std::endl;
 			db->Execute(es);
-			std::cout << "Line :" << std::endl;
 		}
 	} else {
 		Lexer lex;
