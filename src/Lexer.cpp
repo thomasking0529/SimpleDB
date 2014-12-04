@@ -100,7 +100,7 @@ bool is_keyword(const std::string& s) {
 	std::for_each(t.begin(), t.end(), to_upper);
 	if (t == "SELECT" || t == "FROM" || t == "WHERE" || t == "DELETE"
 			|| t == "TABLE" || t == "CREATE" || t == "INT" || t == "VALUES"
-			|| t == "PRIMARY" || t == "KEY" || t == "DEFAULT") {
+			|| t == "PRIMARY" || t == "KEY" || t == "DEFAULT" || t == "INTO") {
 		return true;
 	}
 	return false;
@@ -120,8 +120,7 @@ std::list<Token> Lexer::GetTokens(const std::string& a) {
 			if (t[0] >= '0' && t[0] <= '9') {
 				for (int i = 1; i < t.size(); i++) {
 					if (!(t[i] >= '0' && t[i] <= '9')) {
-						std::cerr << "Illegal Tokens: " << t << std::endl;
-						exit(EXIT_FAILURE);
+						throw(new SDBException("Illegal Tokens"));
 					}
 				}
 				ret.push_back(Token(NUM, t));
@@ -203,8 +202,7 @@ std::list<std::string> Lexer::split(const std::string& s) {
 				ret.push_back(std::string("") + s[i] + s[i]);
 				i++;
 			} else {
-				std::cerr << "Illegal Token" << std::endl;
-				exit(0);
+				throw(new SDBException("Illegal Tokens"));
 			}
 		}
 	}

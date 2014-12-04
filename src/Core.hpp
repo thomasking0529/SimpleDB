@@ -10,6 +10,7 @@
 
 #include "Lexer.hpp"
 #include "Parser.hpp"
+#include "Exceptions.hpp"
 #include <set>
 
 struct Row {
@@ -114,7 +115,13 @@ public:
 		parser = new Parser();
 	}
 	void Execute(const std::string& stmt) {
-		Statement s = parser->Parse(stmt);
+		Statement s;
+		try {
+			s = parser->Parse(stmt);
+		} catch (SDBException e) {
+			e.Print();
+			return;
+		}
 		Execute(s);
 	}
 };

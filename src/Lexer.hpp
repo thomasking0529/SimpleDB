@@ -16,6 +16,8 @@
 #include <cstdlib>
 #include <iostream>
 
+#include "Exceptions.hpp"
+
 /*
  * common functions
  */
