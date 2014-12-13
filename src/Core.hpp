@@ -12,6 +12,8 @@
 #include "Parser.hpp"
 #include "Exceptions.hpp"
 #include <set>
+#include <vector>
+  #include <iostream>
 
 struct Row {
 	int key;
@@ -50,6 +52,9 @@ struct Table {
 	//if value not specified, use default value
 	void Insert(const std::vector<int>& record);
 	void Delete(const Condition* cond);
+
+	// return keys of rows that matches the condition
+	std::vector<int> Query(const Condition* cond) ;
 
 	Table(const std::string& i, int ki, const std::vector<Property>& p) {
 		count = 1;
@@ -95,26 +100,13 @@ struct Table {
 
 class SimpleDB {
 private:
-	Parser* parser;
-	std::set<Table> tables;
-	/*
-	 * Specially, for a query, print the result in a neat
-	 * way. The effect should be similar to:
-	 */
-
-	/*
-	 * Error handling:
-	 *    Do nothing but print meaningful message if a statement
-	 *  has consistency problem.
-	 *    Print result if success
-	 */
 	void Execute(const Statement& stmt);
+	Parser* parser;
 
 public:
-	SimpleDB() {
-		parser = new Parser();
-	}
-	void Execute(const std::string& stmt) {
+	std::set<Table> tables;
+	SimpleDB() {}
+void Execute(const std::string& stmt) {
 		Statement s;
 		try {
 			s = parser->Parse(stmt);
@@ -124,6 +116,7 @@ public:
 		}
 		Execute(s);
 	}
+	
 };
 
 #endif /* CORE_HPP_ */
