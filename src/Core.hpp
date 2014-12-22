@@ -105,7 +105,7 @@ private:
 
 public:
 	std::set<Table> tables;
-	SimpleDB() {}
+	SimpleDB() {parser = new Parser();}
 void Execute(const std::string& stmt) {
 		Statement s;
 		try {

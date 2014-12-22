@@ -28,6 +28,7 @@ Lexer::Lexer() {
 	symbols.insert(')');
 	symbols.insert('(');
 	symbols.insert(',');
+	symbols.insert(';');
 	ops.insert("+");
 	ops.insert("-");
 	ops.insert("*");
@@ -45,6 +46,7 @@ Lexer::Lexer() {
 	ops.insert("==");
 	ops.insert("&&");
 	ops.insert("||");
+	ops.insert(";");
 }
 
 /*EXAMPLE
@@ -89,18 +91,19 @@ Lexer::Lexer() {
  *        a+/2b -> a + / 2b, 2b matched before
  */
 
-void to_upper(char& a) {
-	if (a >= 'a' && a <= 'z') {
-		a = a - 'a' + 'A';
+void to_lower(char& a) {
+	if (a >= 'A' && a <= 'Z') {
+		a = a - 'A' + 'a';
 	}
 }
 
 bool is_keyword(const std::string& s) {
 	std::string t = s;
-	std::for_each(t.begin(), t.end(), to_upper);
-	if (t == "SELECT" || t == "FROM" || t == "WHERE" || t == "DELETE"
-			|| t == "TABLE" || t == "CREATE" || t == "INT" || t == "VALUES"
-			|| t == "PRIMARY" || t == "KEY" || t == "DEFAULT" || t == "INTO") {
+	std::for_each(t.begin(), t.end(), to_lower);
+	if (t == "select" || t == "from" || t == "where" || t == "delete"
+			|| t == "table" || t == "create" || t == "int" || t == "values"
+			|| t == "primary" || t == "key" || t == "default" || t == "into"
+			|| t == "insert") {
 		return true;
 	}
 	return false;
@@ -111,7 +114,7 @@ std::list<Token> Lexer::GetTokens(const std::string& a) {
 	std::list<Token> ret;
 	for (auto& t : tmp) {
 		if (is_keyword(t)) {
-			std::for_each(t.begin(), t.end(), to_upper);
+			std::for_each(t.begin(), t.end(), to_lower);
 			ret.push_back(Token(KEYWORD, t));
 		} else if (ops.find(t) != ops.end()) {
 			ret.push_back(Token(OP, t));

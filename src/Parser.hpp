@@ -10,6 +10,10 @@
 
 #include "Lexer.hpp"
 #include <iostream>
+#include <map>
+#include <stack>
+#include <list>
+#include <string>
 
 enum Action {
 	CREATE, DELETE, INSERT, QUERY, INVALID,
@@ -219,7 +223,15 @@ private:
 	 *
 	 */
 	Lexer* lexer;
-
+	void initTable();
+	void initTerminal();
+	void initAction();
+	typedef void (*act)(Statement &s, Token t, std::string last);
+	std::map<std::pair<std::string, std::string>, std::list<std::string> > table;
+	std::set<std::string> terminal;
+	std::map<std::string, act> action;
+	std::stack<std::string> procedure;
+	std::string getTokenSymbol(Token t);
 public:
 	Parser();
 	Statement Parse(const std::string& s);
