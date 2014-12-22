@@ -31,12 +31,12 @@ void Parser::initTable() {
 	std::string top, front, content;
 	while (fgets(rule, 100, file)) {
 		std::list<std::string> lst;
-		top = strtok(rule, " \n");
-		front = strtok(NULL, " \n");
-		next = strtok (NULL, " \n");
+		top = strtok(rule, " ");
+		front = strtok(NULL, " ");
+		next = strtok (NULL, " ");
 		while (next != NULL) {
 			lst.push_back(next);
-			next = strtok (NULL, " \n");
+			next = strtok (NULL, " ");
 		}
 		table[std::make_pair(top, front)] = lst;
 	}

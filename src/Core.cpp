@@ -37,6 +37,9 @@ int getOp(const std::vector<Property> &props, const Row &r, const Condition* con
 }
 
 bool checkCond(const std::vector<Property> &props, const Row &r, const Condition* cond) {
+	if(cond == NULL) {
+		return true;
+	}
 	// when op is AND/OR, check condition recursively on left branch and right branch
 	if (cond->op == AND) {
 		return checkCond(props, r, cond->lc) && checkCond(props, r, cond->rc);
