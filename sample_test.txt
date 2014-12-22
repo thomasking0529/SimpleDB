@@ -1,1 +1,1 @@
-create table aa
+create table student(sid int);

@@ -17,22 +17,36 @@
 
 struct Row {
 	int key;
+	std::vector<int> keys;
 	std::vector<int> cols;
 	bool operator==(const Row& r) const {
-		return key == r.key;
+		if(sizeof(keys) == 0 || sizeof(r.keys) == 0) {
+			return key == r.key;
+		}
+		for(auto& i : keys) {
+			if(cols[i] == r.cols[i])
+				return true;
+		}
+		return false;
 	}
 
 	bool operator<(const Row& r) const {
 		return key < r.key;
 	}
 
-	Row(const std::vector<int>& c, int k_idx, int count) {
+	Row(const std::vector<int>& c, std::vector<int> k, int count) {
 		cols = c;
-		if (k_idx != -1) {
-			key = c[k_idx];
+		keys = k;
+		if(keys.size() != 0) {
+			key = cols[keys[0]];
 		} else {
 			key = count;
 		}
+	}
+
+	//Dummy usage
+	Row(int k) {
+		key = k;
 	}
 };
 
@@ -42,8 +56,7 @@ struct Table {
 	//table props
 	std::vector<Property> props;
 	//primary key index
-	//-1 for no primary key
-	int key_idx;
+	std::vector<int> key_idx;
 	//if no primary key, used for search
 	unsigned long long count;
 	//use string to store various type of values
@@ -56,12 +69,24 @@ struct Table {
 	// return keys of rows that matches the condition
 	std::vector<int> Query(const Condition* cond) ;
 
-	Table(const std::string& i, int ki, const std::vector<Property>& p) {
+	Table(const std::string& i, const std::vector<std::string>& ki, const std::list<Property>& p) {
 		count = 1;
-		key_idx = ki;
+		int n = 0;
+		for(auto& i : ki) {
+			for(auto& j : p) {
+				if(j.id == i) {
+					key_idx.push_back(n);
+					break;
+				}
+			}
+			n++;
+		}
+		for(auto& i : p) {
+			props.push_back(i);
+		}
 		id = i;
-		props = p;
 	}
+
 	bool operator<(const Table& t) const {
 		return id < t.id;
 	}

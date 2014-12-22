@@ -87,9 +87,8 @@ void Table::Delete(const Condition* cond) {
 
 	 // delete rows
 	 std::vector<int>::iterator it2 = keyOfRows.begin();
-	 std::vector<int> dummyVec;
 	 for ( ; it2 != keyOfRows.end(); it2++) {
-	 	rows.erase(Row(dummyVec, -1, *it2));
+	 	rows.erase(Row(*it2));
 	 }
 }
 
@@ -123,11 +122,11 @@ void SimpleDB::Execute(const Statement& stmt) {
 
 				// print the result
 				std::vector<std::string> ids;
-				std::vector<int > indexes;
-				for (int i = 0; i < stmt.prop_list.size(); i++) {
-					ids.push_back(stmt.prop_list[i].id);
+				std::vector<int> indexes;
+				for (auto& i : stmt.prop_list) {
+					ids.push_back(i.id);
 					for (int j = 0; j < it->props.size(); j++) {
-						if (it->props[j].id == ids[i]) {
+						if (it->props[j].id == i.id) {
 							indexes.push_back(j);
 						}
 					}
@@ -151,7 +150,7 @@ void SimpleDB::Execute(const Statement& stmt) {
 				for (int i =0; i < keyOfRows.size(); i++) {
 					std::string dataLine = "|";
 					for (int j = 0; j < ids.size(); j++) {
-						int data = it->rows.find(Row(dummyVec, -1, keyOfRows[i]))->cols[indexes[j]];
+						int data = it->rows.find(Row(keyOfRows[i]))->cols[indexes[j]];
 						std::stringstream ss;
 						ss << data;
 						std::string dataStr = ss.str();

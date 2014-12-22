@@ -69,6 +69,10 @@ struct Condition {
 	//right
 	Condition* rc;
 
+	Condition() {
+		lc = rc = NULL;
+	}
+
 	Condition(BoolOp o) {
 		op = o;
 		lc = rc = NULL;
@@ -118,14 +122,14 @@ struct Statement {
 	 * list of properties to return
 	 * used with select and create
 	 */
-	std::vector<Property> prop_list;
+	std::list<Property> prop_list;
 
 	/*
 	 * location of primary key
 	 * used with create
 	 * -1 for no primary key
 	 */
-	int key_idx;
+	std::vector<std::string> key_idx;
 
 	/*
 	 * value list, only for insert
@@ -137,6 +141,19 @@ struct Statement {
 	 * NULL for none(insert and
 	 */
 	Condition* cond;
+
+	void treeInsert(Token node);
+	Condition* insertNodeSearch(Condition* &cond);
+	void rotate(Condition* &cond);
+	Statement() {
+		cond = NULL;
+	}
+
+};
+
+struct state{
+	int count;
+	std::string sta;
 };
 
 /*ERROR Handling
@@ -226,7 +243,7 @@ private:
 	void initTable();
 	void initTerminal();
 	void initAction();
-	typedef void (*act)(Statement &s, Token t, std::string last);
+	typedef void (*act)(Statement &s, Token t, std::string father);
 	std::map<std::pair<std::string, std::string>, std::list<std::string> > table;
 	std::set<std::string> terminal;
 	std::map<std::string, act> action;
