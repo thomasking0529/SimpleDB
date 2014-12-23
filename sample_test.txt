@@ -1,1 +1,9 @@
-create table student(sid int);
+create table student(primary key (sid), age int, time int);
+insert into student(sid, age, time) values(8, 9, 11);
+insert into student(sid, age, time) values(9, 10, 7);
+select sid, age, time  from student where time < 11;
+select sid, age, time  from student where time > 11;
+select sid, age, time  from student where time == 11;
+select sid, age, time  from student where time >= 11;
+select sid, age, time  from student where time <= 11;
+select sid, age, time  from student where time != 11;

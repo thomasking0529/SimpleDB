@@ -76,9 +76,13 @@ void Parser::initAction() {
 			Property p;
 			p.id = t.value;
 			p.default_value = 0;
-			s.prop_list.push_front(p);
+			s.prop_list.push_back(p);
 		} else if (father == "column_list") {
 			s.key_idx.push_back(t.value);
+			Property p;
+			p.id = t.value;
+			p.default_value = 0;
+			s.prop_list.push_back(p);
 		} else if (father == "operand") {
 			s.treeInsert(t);
 		} else {
@@ -87,10 +91,10 @@ void Parser::initAction() {
 	};
 	action["num"] = [](Statement &s, Token t, std::string father) {
 		if (father == "default_spec") {
-			Property p = s.prop_list.front();
+			Property p = s.prop_list.back();
 			p.default_value = atoi(t.value.c_str());
-			s.prop_list.pop_front();
-			s.prop_list.push_front(p);
+			s.prop_list.pop_back();
+			s.prop_list.push_back(p);
 		} else if (father == "value_list") {
 			s.value_list.push_back(atoi(t.value.c_str()));
 		} else if (father == "operand") {

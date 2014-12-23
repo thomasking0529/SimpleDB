@@ -126,9 +126,11 @@ void SimpleDB::Execute(const Statement& stmt) {
 				// print the result
 				std::vector<std::string> ids;
 				std::vector<int> indexes;
+
 				for (auto& i : stmt.prop_list) {
 					ids.push_back(i.id);
 					for (int j = 0; j < it->props.size(); j++) {
+
 						if (it->props[j].id == i.id) {
 							indexes.push_back(j);
 						}
@@ -148,7 +150,7 @@ void SimpleDB::Execute(const Statement& stmt) {
 
 				std::cout << lineSep << std::endl << titleLine << std::endl << lineSep << std::endl;
 
-				std::string leftSpace(5, ' ');
+				std::string leftSpace(8, ' ');
 				std::vector<int> dummyVec;
 				for (int i =0; i < keyOfRows.size(); i++) {
 					std::string dataLine = "|";
