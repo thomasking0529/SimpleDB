@@ -169,6 +169,16 @@ void Parser::initAction() {
 			throw SDBException("something wrong");
 		}
 	};
+	action["*"] = [](Statement &s, Token t, std::string father) {
+		if (father == "select_list") {
+			Property p;
+			p.id = t.value;
+			p.default_value = 0;
+			s.prop_list.push_back(p);
+		} else {
+			throw SDBException("something wrong");
+		}
+	}
 }
 
 void Statement::treeInsert(Token node) {
