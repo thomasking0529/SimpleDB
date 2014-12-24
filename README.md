@@ -19,7 +19,7 @@ Parser fixed::??
 然而
 create table student(primary key (sid), age int, time int)（语法错误）
 返回的prop_list为[sid, age, time]
-----------已解决
+----------已解决, 但是core没有处理好这个语法错误
 
 3.大于符号“>”得到的解析符号是LT，比如出现
 bug location: Lexer
