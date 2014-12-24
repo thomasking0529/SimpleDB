@@ -11,6 +11,7 @@ Parser fixed::??
 select * from student where time > 11;
 返回的statement中的prop_list 为空
 ---------这里空就是*了，不过还是给加上了一个“*”的property了
+栋梁：已解决
 
 2.create table student(sid int, primary key (sid), age int, time int)
 bug location: Parser
@@ -19,7 +20,8 @@ Parser fixed::??
 然而
 create table student(primary key (sid), age int, time int)（语法错误）
 返回的prop_list为[sid, age, time]
-----------已解决, 但是core没有处理好这个语法错误
+----------已解决, 但是core没有处理好这个语法错误---
+栋梁：已解决，数据库处理中已经添加主键的检查
 
 3.大于符号“>”得到的解析符号是LT，比如出现
 bug location: Lexer
@@ -27,6 +29,7 @@ Parser fixed::12-24, SunJiacheng
 
 select sid, age, time  from student where time > 11;
 得到的布尔树为： time LT 11
+栋梁：已经解决了
 
 4.无法识别!=， 比如出现
 bug location: Lexer|Parser
@@ -35,4 +38,5 @@ Parser fixed::??
 
 select sid, age, time  from student where time != 11;
 直接崩掉
+
                                                                                                                 ---栋梁：）

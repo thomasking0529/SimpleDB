@@ -102,13 +102,28 @@ void SimpleDB::Execute(const Statement& stmt) {
 
 	if (stmt.act == CREATE) {
 		if (it == tables.end()) {
+			// test if primary keys matches prop_list
+			for (int i = 0; i < stmt.key_idx.size(); i++) {
+				bool findKey = false;
+				for(auto& p : stmt.prop_list) {
+					if (p.id == stmt.key_idx[i]) {
+						findKey = true;
+						break;
+					}
+				}
+				if (!findKey) {
+					std::cerr << "primary key not in property list" << std::endl;
+					return;
+				}
+			}
 			tables.insert(t);
 		} else {
 			std::cerr << "Table name conflicts!\n";
 		}
 	} else {
 		if ( it == tables.end()) {
-			std::cerr << "Table " << stmt.table << " does not exist!\n";			
+			std::cerr << "Table " << stmt.table << " does not exist!\n";
+			return;
 		}
 		switch (stmt.act) {
 		case DELETE:
@@ -126,13 +141,18 @@ void SimpleDB::Execute(const Statement& stmt) {
 				// print the result
 				std::vector<std::string> ids;
 				std::vector<int> indexes;
-
-				for (auto& i : stmt.prop_list) {
-					ids.push_back(i.id);
-					for (int j = 0; j < it->props.size(); j++) {
-
-						if (it->props[j].id == i.id) {
-							indexes.push_back(j);
+				if (stmt.prop_list.back().id == "*") {
+					for (int i = 0; i < it->props.size(); i++) {
+						ids.push_back(it->props[i].id);
+						indexes.push_back(i);
+					}
+				} else {
+					for (auto& i : stmt.prop_list) {
+						ids.push_back(i.id);
+						for (int j = 0; j < it->props.size(); j++) {
+							if (it->props[j].id == i.id) {
+								indexes.push_back(j);
+							}
 						}
 					}
 				}
