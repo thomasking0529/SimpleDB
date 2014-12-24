@@ -28,6 +28,7 @@ Lexer::Lexer() {
 	symbols.insert('(');
 	symbols.insert(',');
 	symbols.insert(';');
+	symbols.insert('!');
 	ops.insert("+");
 	ops.insert("-");
 	ops.insert("*");
@@ -45,8 +46,6 @@ Lexer::Lexer() {
 	ops.insert("==");
 	ops.insert("&&");
 	ops.insert("||");
-	ops.insert("!");
-	ops.insert("!=");
 	ops.insert(";");
 }
 
@@ -178,10 +177,10 @@ std::list<std::string> Lexer::split(const std::string& s) {
 				t = "";
 			}
 			if (s[i + 1] == '=') {
-				ret.push_back("<=");
+				ret.push_back(">=");
 				i++;
 			} else {
-				ret.push_back("<");
+				ret.push_back(">");
 			}
 			//= ==
 			//= = will be interpreted as two "="

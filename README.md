@@ -21,8 +21,9 @@ create table student(primary key (sid), age int, time int)（语法错误）
 返回的prop_list为[sid, age, time]
 
 3.大于符号“>”得到的解析符号是LT，比如出现
-bug location: Parser
-Parser fixed::??
+bug location: Lexer
+Parser fixed::12-24, SunJiacheng
+
 select sid, age, time  from student where time > 11;
 得到的布尔树为： time LT 11
 
