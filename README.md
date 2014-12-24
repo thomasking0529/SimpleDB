@@ -10,7 +10,7 @@ bug location: Parser
 Parser fixed::??
 select * from student where time > 11;
 返回的statement中的prop_list 为空
-
+---------这里空就是*了，不过还是给加上了一个“*”的property了
 
 2.create table student(sid int, primary key (sid), age int, time int)
 bug location: Parser
@@ -19,6 +19,7 @@ Parser fixed::??
 然而
 create table student(primary key (sid), age int, time int)（语法错误）
 返回的prop_list为[sid, age, time]
+----------已解决
 
 3.大于符号“>”得到的解析符号是LT，比如出现
 bug location: Lexer
