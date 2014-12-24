@@ -212,12 +212,7 @@ std::list<std::string> Lexer::split(const std::string& s) {
 				ret.push_back(t);
 				t = "";
 			}
-			if (s[i + 1] == '=') {
-				ret.push_back(std::string("") + s[i] + s[i+1]);
-				i++;
-			} else {
-				ret.push_back(std::string("") + s[i]);
-			}
+			ret.push_back(std::string("") + s[i]);
 		}
 	}
 	if (t != "") {

@@ -178,7 +178,7 @@ void Parser::initAction() {
 		} else {
 			throw SDBException("something wrong");
 		}
-	}
+	};
 }
 
 void Statement::treeInsert(Token node) {
