@@ -213,6 +213,8 @@ std::list<std::string> Lexer::split(const std::string& s) {
 				t = "";
 			}
 			ret.push_back(std::string("") + s[i]);
+		} else {
+				throw(new SDBException("Illegal Tokens"));
 		}
 	}
 	if (t != "") {
