@@ -78,11 +78,14 @@ void Parser::initAction() {
 			p.default_value = 0;
 			s.prop_list.push_back(p);
 		} else if (father == "column_list") {
-			s.key_idx.push_back(t.value);
-			Property p;
-			p.id = t.value;
-			p.default_value = 0;
-			s.prop_list.push_back(p);
+			if (s.act == CREATE) {
+				s.key_idx.push_back(t.value);
+			} else if (s.act == QUERY) {
+				Property p;
+				p.id = t.value;
+				p.default_value = 0;
+				s.prop_list.push_back(p);
+			}
 		} else if (father == "operand") {
 			s.treeInsert(t);
 		} else {
