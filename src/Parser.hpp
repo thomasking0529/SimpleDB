@@ -73,9 +73,9 @@ public:
 					std::cerr << "Wrong expression.\n";
 					return 0;
 				} else {
-					int a = nums.top();
-					nums.pop();
 					int b = nums.top();
+					nums.pop();
+					int a = nums.top();
 					nums.pop();
 					if (to_ret == "+") {
 						nums.push(a + b);

@@ -26,13 +26,13 @@ int main(int argc, char *argv[]) {
 		}
 	} else {
 		Polish p;
-		p.Insert("(");
-		p.Insert("1");
-		p.Insert("+");
-		p.Insert("2");
-		p.Insert(")");
+		p.Insert("32");
 		p.Insert("*");
 		p.Insert("3");
+		p.Insert("-");
+		p.Insert("6");
+		p.Insert("/");
+		p.Insert("2");
 		std::cout << p.Calculate() << std::endl;
 	}
 	return 0;
