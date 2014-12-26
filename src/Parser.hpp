@@ -236,11 +236,6 @@ struct Statement {
 
 };
 
-struct state {
-	int count;
-	std::string sta;
-};
-
 /*ERROR Handling
  * The parser should handle the ill-formed statements, but
  * not check its consistency.
