@@ -41,7 +41,7 @@ public:
 		_ops.insert("/");
 	}
 	void Insert(const std::string& item) {
-		if (_ops.find(item) != _ops.end()) {
+		if (!ops.empty() && _ops.find(item) != _ops.end()) {
 			while (level.find(item)->second <= level.find(ops.back())->second) {
 				rp.push(ops.back());
 				ops.pop_back();
@@ -50,7 +50,7 @@ public:
 		} else if (item == "(") {
 			ops.push_back("(");
 		} else if (item == ")") {
-			while (ops.back() != "(") {
+			while (!ops.empty() && ops.back() != "(") {
 				rp.push(ops.back());
 				ops.pop_back();
 			}
