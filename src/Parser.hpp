@@ -12,11 +12,94 @@
 #include <iostream>
 #include <map>
 #include <stack>
+#include <queue>
 #include <list>
 #include <string>
+#include <stdlib.h>
 
 enum Action {
 	CREATE, DELETE, INSERT, QUERY, INVALID,
+};
+
+class Polish {
+private:
+	std::list<std::string> ops;
+	std::queue<std::string> rp;
+	std::map<std::string, int> level;
+	std::set<std::string> _ops;
+public:
+	Polish() {
+		level.insert(std::pair<std::string, int>("+", 0));
+		level.insert(std::pair<std::string, int>("-", 0));
+		level.insert(std::pair<std::string, int>("*", 1));
+		level.insert(std::pair<std::string, int>("/", 1));
+		level.insert(std::pair<std::string, int>("(", -1));
+		level.insert(std::pair<std::string, int>(")", -1));
+		_ops.insert("+");
+		_ops.insert("-");
+		_ops.insert("*");
+		_ops.insert("/");
+	}
+	void Insert(const std::string& item) {
+		if (_ops.find(item) != _ops.end()) {
+			while (level.find(item)->second <= level.find(ops.back())->second) {
+				rp.push(ops.back());
+				ops.pop_back();
+			}
+			ops.push_back(item);
+		} else if (item == "(") {
+			ops.push_front(item);
+		} else if (item == ")") {
+			while (ops.back() != "(") {
+				rp.push(ops.back());
+				ops.pop_back();
+			}
+			ops.pop_back();
+		} else {
+			rp.push(item);
+		}
+	}
+	int Calculate() {
+		std::stack<int> nums;
+		while (!ops.empty()) {
+			rp.push(ops.back());
+			ops.pop_back();
+		}
+		while (!rp.empty()) {
+			std::string to_ret = rp.front();
+			rp.pop();
+			if (_ops.find(to_ret) != _ops.end()) {
+				if (nums.size() < 2) {
+					std::cerr << "Wrong expression.\n";
+					return 0;
+				} else {
+					int a = nums.top();
+					nums.pop();
+					int b = nums.top();
+					nums.pop();
+					if (to_ret == "+") {
+						nums.push(a + b);
+					} else if (to_ret == "*") {
+						nums.push(a * b);
+					} else if (to_ret == "-") {
+						nums.push(a - b);
+					} else if (to_ret == "/") {
+						nums.push(a / b);
+					}
+				}
+			} else {
+				nums.push(atoi(to_ret.c_str()));
+			}
+		}
+		if (nums.size() != 1) {
+			std::cerr << "Wrong expression.\n";
+			return 0;
+		} else {
+			int t = nums.top();
+			nums.pop();
+			return t;
+		}
+	}
 };
 
 //arithmetic operators
@@ -70,6 +153,7 @@ struct Condition {
 	Condition* rc;
 
 	Condition() {
+		op = NOT;
 		lc = rc = NULL;
 	}
 
@@ -146,12 +230,13 @@ struct Statement {
 	Condition* insertNodeSearch(Condition* &cond);
 	void rotate(Condition* &cond);
 	Statement() {
+		act = INVALID;
 		cond = NULL;
 	}
 
 };
 
-struct state{
+struct state {
 	int count;
 	std::string sta;
 };

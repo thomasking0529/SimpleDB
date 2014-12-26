@@ -8,6 +8,7 @@
 #include <iostream>
 #include <fstream>
 #include "Core.hpp"
+#include "Parser.hpp"
 
 int main(int argc, char *argv[]) {
 	SimpleDB* db = new SimpleDB();
@@ -24,17 +25,15 @@ int main(int argc, char *argv[]) {
 			db->Execute(es);
 		}
 	} else {
-		Lexer lex;
-		std::list<std::string> a = lex.split(
-				"select * from a where(id == a || id == 0)");
-		for (auto& i : a) {
-			std::cout << i << std::endl;
-		}
-		std::list<Token> s = lex.GetTokens(
-				"select * from a where(id == a || id == 0 && id == s)");
-		for (auto& i : s) {
-			std::cout << i.type << " " << i.value << std::endl;
-		}
+		Polish p;
+		p.Insert("(");
+		p.Insert("1");
+		p.Insert("+");
+		p.Insert("2");
+		p.Insert(")");
+		p.Insert("*");
+		p.Insert("3");
+		std::cout << p.Calculate() << std::endl;
 	}
 	return 0;
 }

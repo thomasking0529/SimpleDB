@@ -214,7 +214,7 @@ std::list<std::string> Lexer::split(const std::string& s) {
 			}
 			ret.push_back(std::string("") + s[i]);
 		} else {
-				throw(new SDBException("Illegal Tokens"));
+			throw(new SDBException("Illegal Tokens"));
 		}
 	}
 	if (t != "") {

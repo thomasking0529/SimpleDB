@@ -5,7 +5,7 @@
 #include <string>
 #include <iostream>
 
-class SDBException : std::exception {
+class SDBException: std::exception {
 private:
 	std::string e;
 

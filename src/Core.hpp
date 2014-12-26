@@ -13,18 +13,18 @@
 #include "Exceptions.hpp"
 #include <set>
 #include <vector>
-  #include <iostream>
+#include <iostream>
 
 struct Row {
 	int key;
 	std::vector<int> keys;
 	std::vector<int> cols;
 	bool operator==(const Row& r) const {
-		if(sizeof(keys) == 0 || sizeof(r.keys) == 0) {
+		if (sizeof(keys) == 0 || sizeof(r.keys) == 0) {
 			return key == r.key;
 		}
-		for(auto& i : keys) {
-			if(cols[i] == r.cols[i])
+		for (auto& i : keys) {
+			if (cols[i] == r.cols[i])
 				return true;
 		}
 		return false;
@@ -37,7 +37,7 @@ struct Row {
 	Row(const std::vector<int>& c, std::vector<int> k, int count) {
 		cols = c;
 		keys = k;
-		if(keys.size() != 0) {
+		if (keys.size() != 0) {
 			key = cols[keys[0]];
 		} else {
 			key = count;
@@ -67,21 +67,22 @@ struct Table {
 	void Delete(const Condition* cond);
 
 	// return keys of rows that matches the condition
-	std::vector<int> Query(const Condition* cond) ;
+	std::vector<int> Query(const Condition* cond);
 
-	Table(const std::string& i, const std::vector<std::string>& ki, const std::list<Property>& p) {
+	Table(const std::string& i, const std::vector<std::string>& ki,
+			const std::list<Property>& p) {
 		count = 1;
 		int n = 0;
-		for(auto& i : ki) {
-			for(auto& j : p) {
-				if(j.id == i) {
+		for (auto& i : ki) {
+			for (auto& j : p) {
+				if (j.id == i) {
 					key_idx.push_back(n);
 					break;
 				}
 			}
 			n++;
 		}
-		for(auto& i : p) {
+		for (auto& i : p) {
 			props.push_back(i);
 		}
 		id = i;
@@ -130,18 +131,20 @@ private:
 
 public:
 	std::set<Table> tables;
-	SimpleDB() {parser = new Parser();}
-void Execute(const std::string& stmt) {
+	SimpleDB() {
+		parser = new Parser();
+	}
+	void Execute(const std::string& stmt) {
 		Statement s;
 		try {
 			s = parser->Parse(stmt);
-		} catch (SDBException e) {
+		} catch (SDBException& e) {
 			e.Print();
 			return;
 		}
 		Execute(s);
 	}
-	
+
 };
 
 #endif /* CORE_HPP_ */

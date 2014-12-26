@@ -33,10 +33,10 @@ void Parser::initTable() {
 		std::list<std::string> lst;
 		top = strtok(rule, " ");
 		front = strtok(NULL, " ");
-		next = strtok (NULL, " ");
+		next = strtok(NULL, " ");
 		while (next != NULL) {
 			lst.push_back(next);
-			next = strtok (NULL, " ");
+			next = strtok(NULL, " ");
 		}
 		table[std::make_pair(top, front)] = lst;
 	}
@@ -58,20 +58,24 @@ void Parser::initTerminal() {
 }
 
 void Parser::initAction() {
-	std::for_each(terminal.begin(), terminal.end(), 
-		[&](const std::string& ter){
-			action[ter] = [](Statement &s, Token t, std::string father) {
-				//printf("%s", t.value.c_str());
-			};
-	});
-	action["select"] = [](Statement &s, Token t, std::string father) {s.act = QUERY;};
-	action["create"] = [](Statement &s, Token t, std::string father) {s.act = CREATE;};
-	action["insert"] = [](Statement &s, Token t, std::string father) {s.act = INSERT;};
-	action["delete"] = [](Statement &s, Token t, std::string father) {s.act = DELETE;};
+	std::for_each(terminal.begin(), terminal.end(),
+			[&](const std::string& ter) {
+				action[ter] = [](Statement &s, Token t, std::string father) {
+					//printf("%s", t.value.c_str());
+				};
+			});
+	action["select"] =
+			[](Statement &s, Token t, std::string father) {s.act = QUERY;};
+	action["create"] =
+			[](Statement &s, Token t, std::string father) {s.act = CREATE;};
+	action["insert"] =
+			[](Statement &s, Token t, std::string father) {s.act = INSERT;};
+	action["delete"] =
+			[](Statement &s, Token t, std::string father) {s.act = DELETE;};
 	action["id"] = [](Statement &s, Token t, std::string father) {
 		if (father == "create_stmt" || father == "insert_stmt"
-			|| father == "delete_stmt" || father == "query_stmt"){
-				s.table = t.value;
+				|| father == "delete_stmt" || father == "query_stmt") {
+			s.table = t.value;
 		} else if (father == "decl") {
 			Property p;
 			p.id = t.value;
@@ -187,79 +191,76 @@ void Statement::treeInsert(Token node) {
 	}
 	Condition *toInsert = insertNodeSearch(cond);
 	switch (node.type) {
-		case ID:
-			{
-				if (toInsert->lc == NULL) {
-					Condition *newNode = new Condition();
-					newNode->opd = node.value;
-					toInsert->lc = newNode;
-				} else {
-					Condition *newNode = new Condition();
-					newNode->opd = node.value;
-					toInsert->rc = newNode;
-				}
-				break;
-			}
-		case NUM:
-			{
-				if (toInsert->lc == NULL) {
-					Condition *newNode = new Condition();
-					newNode->opd = node.value;
-					toInsert->lc = newNode;
-				} else {
-					Condition *newNode = new Condition();
-					newNode->opd = node.value;
-					toInsert->rc = newNode;
-				}
-				break;
-			}
-		case OP:
-			{
-				/*
-				LT, // <
-				GT, // >
-				NE, // <>
-				EQ, // ==
-				GTE, // >=
-				LTE, // <=
-				AND, // &&
-				OR, // ||
-				NOT, // !
-				*/
-				if (node.value == "<") {
-					toInsert->op = LT;
-				} else if (node.value == ">") {
-					toInsert->op = GT;
-				} else if (node.value == "<>") {
-					toInsert->op = NE;
-				} else if (node.value == "==") {
-					toInsert->op = EQ;
-				} else if (node.value == ">=") {
-					toInsert->op = GTE;
-				} else if (node.value == "<=") {
-					toInsert->op = LTE;
-				} else if (node.value == "&&") {
-					rotate(cond);
-					cond->op = AND;
-				} else if (node.value == "||") {
-					rotate(cond);
-					cond->op = OR;
-				} else if (node.value == "!") {
-					rotate(cond);
-					cond->op = NOT;
-				}
-				break;
-			}
-		default:
-			throw SDBException("abcdefg");
+	case ID: {
+		if (toInsert->lc == NULL) {
+			Condition *newNode = new Condition();
+			newNode->opd = node.value;
+			toInsert->lc = newNode;
+		} else {
+			Condition *newNode = new Condition();
+			newNode->opd = node.value;
+			toInsert->rc = newNode;
+		}
+		break;
+	}
+	case NUM: {
+		if (toInsert->lc == NULL) {
+			Condition *newNode = new Condition();
+			newNode->opd = node.value;
+			toInsert->lc = newNode;
+		} else {
+			Condition *newNode = new Condition();
+			newNode->opd = node.value;
+			toInsert->rc = newNode;
+		}
+		break;
+	}
+	case OP: {
+		/*
+		 LT, // <
+		 GT, // >
+		 NE, // <>
+		 EQ, // ==
+		 GTE, // >=
+		 LTE, // <=
+		 AND, // &&
+		 OR, // ||
+		 NOT, // !
+		 */
+		if (node.value == "<") {
+			toInsert->op = LT;
+		} else if (node.value == ">") {
+			toInsert->op = GT;
+		} else if (node.value == "<>") {
+			toInsert->op = NE;
+		} else if (node.value == "==") {
+			toInsert->op = EQ;
+		} else if (node.value == ">=") {
+			toInsert->op = GTE;
+		} else if (node.value == "<=") {
+			toInsert->op = LTE;
+		} else if (node.value == "&&") {
+			rotate(cond);
+			cond->op = AND;
+		} else if (node.value == "||") {
+			rotate(cond);
+			cond->op = OR;
+		} else if (node.value == "!") {
+			rotate(cond);
+			cond->op = NOT;
+		}
+		break;
+	}
+	default:
+		throw SDBException("abcdefg");
 	}
 }
 
 Condition* Statement::insertNodeSearch(Condition* &cond) {
-	if (cond->lc == NULL || cond->rc == NULL ) {
+	if (cond->lc == NULL || cond->rc == NULL) {
 		return cond;
 	} else {
-		insertNodeSearch(cond->lc);
+		return insertNodeSearch(cond->lc);
 	}
 }
 
@@ -288,7 +289,6 @@ Statement Parser::Parse(const std::string& s) {
 	Statement st;
 	procedure.push("$");
 	procedure.push("ssql_stmt");
-	int ip = 0;
 	std::string top = procedure.top();
 	std::stack<std::string> father;
 	father.push("$");
@@ -301,7 +301,7 @@ Statement Parser::Parse(const std::string& s) {
 			procedure.pop();
 		} else if (terminal.count(top) > 0) {
 			if (ts.front().type != ID && ts.front().type != NUM
-				&& ts.front().value != top) {
+					&& ts.front().value != top) {
 				throw SDBException("unexpected token");
 				break;
 			}
@@ -310,8 +310,8 @@ Statement Parser::Parse(const std::string& s) {
 			procedure.pop();
 		} else {
 			procedure.pop();
-			std::list<std::string> af
-				= table[std::make_pair(top, getTokenSymbol(ts.front()))];
+			std::list<std::string> af = table[std::make_pair(top,
+					getTokenSymbol(ts.front()))];
 			std::list<std::string>::reverse_iterator i = af.rbegin();
 			for (; i != af.rend(); ++i) {
 				father.push(top);
@@ -321,10 +321,10 @@ Statement Parser::Parse(const std::string& s) {
 		fa = father.top();
 		top = procedure.top();
 	}
-	if (top != "$") throw SDBException("unknown error");
+	if (top != "$")
+		throw SDBException("unknown error");
 	return st;
 }
-
 
 Condition* Parser::parseWhere(std::list<Token> ts) {
 	//example:
