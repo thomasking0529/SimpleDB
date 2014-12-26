@@ -48,7 +48,7 @@ public:
 			}
 			ops.push_back(item);
 		} else if (item == "(") {
-			ops.push_front(item);
+			ops.push_back("(");
 		} else if (item == ")") {
 			while (ops.back() != "(") {
 				rp.push(ops.back());
