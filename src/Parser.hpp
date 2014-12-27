@@ -178,9 +178,9 @@ public:
 		level.insert(std::pair<std::string, int>("<=", 2));
 		level.insert(std::pair<std::string, int>("!", 0));
 		level.insert(std::pair<std::string, int>("&&", -1));
-		level.insert(std::pair<std::string, int>("||", -1));
-		level.insert(std::pair<std::string, int>("(", -2));
-		level.insert(std::pair<std::string, int>(")", -2));
+		level.insert(std::pair<std::string, int>("||", -2));
+		level.insert(std::pair<std::string, int>("(", -3));
+		level.insert(std::pair<std::string, int>(")", -3));
 		_ops.insert("+");
 		_ops.insert("-");
 		_ops.insert("*");
@@ -203,7 +203,9 @@ public:
 	}
 	void Insert(const std::string& item) {
 		if (_ops.find(item) != _ops.end()) {
-			while (!ops.empty() && level.find(item)->second <= level.find(ops.back())->second) {
+			if (item == "!") Insert("!!");
+			while (!ops.empty() &&
+				level.find(item)->second <= level.find(ops.back())->second) {
 				rp.push(ops.back());
 				ops.pop_back();
 			}
@@ -314,10 +316,10 @@ public:
 			std::string to_ret = rp.front();
 			rp.pop();
 			if (_ops.find(to_ret) != _ops.end()) {
-				if (to_ret != "!" && nums.size() < 2) {
+				if (nums.size() < 2) {
 					std::cerr << "Wrong expression.\n";
 					return 0;
-				} else if (to_ret != "!") {
+				} else {
 					Condition* b = nums.top();
 					nums.pop();
 					Condition* a = nums.top();
@@ -364,7 +366,7 @@ public:
 							re->lc = b;
 							re->rc = a;
 							re->opd = "no num";
-							re->op = PLUS;
+							re->op = MINUS;
 							nums.push(re);
 						}
 					} else if (to_ret == "/") {
@@ -379,7 +381,7 @@ public:
 							re->lc = b;
 							re->rc = a;
 							re->opd = "no num";
-							re->op = PLUS;
+							re->op = DIVIDE;
 							nums.push(re);
 						}
 					} else if (to_ret == "<"){
@@ -438,20 +440,21 @@ public:
 						re->opd = "no num";
 						re->op = OR;
 						nums.push(re);
+					} else if (to_ret == "!") {
+						if (a->opd == "!!" && b->opd == "!!") {
+							nums.push(a);
+						} else if (a->opd == "!!") {
+							Condition* re = new Condition();
+							re->lc = b;
+							re->opd = "no num";
+							re->op = NOT;
+							nums.push(re);
+						} else {
+							std::cerr << "Wrong expression.\n";
+							return 0;
+						}
 					}
-				} else if (to_ret == "!") {
-					if (nums.size() < 1) {
-						std::cerr << "Wrong expression.\n";
-						return 0;
-					}
-					Condition* a = nums.top();
-					nums.pop();
-					Condition* re = new Condition();
-					re->lc = a;
-					re->opd = "no num";
-					re->op = NOT;
-					nums.push(re);
-				}
+				} 
 			} else {
 				Condition* tmp = new Condition();
 				tmp->opd = to_ret;
