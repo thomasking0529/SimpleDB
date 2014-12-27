@@ -10,113 +10,23 @@
 
 #include "Lexer.hpp"
 #include <iostream>
+#include <cstdio>
+#include <cstdlib>
 #include <map>
 #include <stack>
-#include <queue>
 #include <list>
 #include <string>
-#include <stdlib.h>
+#include <queue>
 
 enum Action {
 	CREATE, DELETE, INSERT, QUERY, INVALID,
 };
 
-class Polish {
-private:
-	std::list<std::string> ops;
-	std::queue<std::string> rp;
-	std::map<std::string, int> level;
-	std::set<std::string> _ops;
-public:
-	Polish() {
-		level.insert(std::pair<std::string, int>("+", 0));
-		level.insert(std::pair<std::string, int>("-", 0));
-		level.insert(std::pair<std::string, int>("*", 1));
-		level.insert(std::pair<std::string, int>("/", 1));
-		level.insert(std::pair<std::string, int>("(", -1));
-		level.insert(std::pair<std::string, int>(")", -1));
-		_ops.insert("+");
-		_ops.insert("-");
-		_ops.insert("*");
-		_ops.insert("/");
-	}
-	void Insert(const std::string& item) {
-		if (!ops.empty() && _ops.find(item) != _ops.end()) {
-			while (level.find(item)->second <= level.find(ops.back())->second) {
-				rp.push(ops.back());
-				ops.pop_back();
-			}
-			ops.push_back(item);
-		} else if (item == "(") {
-			ops.push_back("(");
-		} else if (item == ")") {
-			while (!ops.empty() && ops.back() != "(") {
-				rp.push(ops.back());
-				ops.pop_back();
-			}
-			ops.pop_back();
-		} else {
-			rp.push(item);
-		}
-	}
-	int Calculate() {
-		std::stack<int> nums;
-		while (!ops.empty()) {
-			rp.push(ops.back());
-			ops.pop_back();
-		}
-		while (!rp.empty()) {
-			std::string to_ret = rp.front();
-			rp.pop();
-			if (_ops.find(to_ret) != _ops.end()) {
-				if (nums.size() < 2) {
-					std::cerr << "Wrong expression.\n";
-					return 0;
-				} else {
-					int b = nums.top();
-					nums.pop();
-					int a = nums.top();
-					nums.pop();
-					if (to_ret == "+") {
-						nums.push(a + b);
-					} else if (to_ret == "*") {
-						nums.push(a * b);
-					} else if (to_ret == "-") {
-						nums.push(a - b);
-					} else if (to_ret == "/") {
-						nums.push(a / b);
-					}
-				}
-			} else {
-				nums.push(atoi(to_ret.c_str()));
-			}
-		}
-		if (nums.size() != 1) {
-			std::cerr << "Wrong expression.\n";
-			return 0;
-		} else {
-			int t = nums.top();
-			nums.pop();
-			return t;
-		}
-	}
-};
-
 //arithmetic operators
 //for parser only
-enum ArithOp {
-	PLUS, // +, both unary and binary
-	MINUS, // -, both unary and binary
-	MULTIPLY, // *
-	DIVIDE, // /
-	E, // =
-	LB, // (
-	RB, // )
-	COMMA, // ,
-};
 
 //boolean operators
-enum BoolOp {
+enum BoolAndArithOp {
 	LT, // <
 	GT, // >
 	NE, // <>
@@ -126,6 +36,14 @@ enum BoolOp {
 	AND, // &&
 	OR, // ||
 	NOT, // !
+	PLUS, // +, both unary and binary
+	MINUS, // -, both unary and binary
+	MULTIPLY, // *
+	DIVIDE, // /
+	E, // =
+	LB, // (
+	RB, // )
+	COMMA, // ,
 };
 
 /*
@@ -140,7 +58,8 @@ struct Condition {
 	 * 		NUM
 	 */
 	// operator
-	BoolOp op;
+	BoolAndArithOp op;
+	
 
 	//TODO:
 	//use isNum and isId to check opd
@@ -153,12 +72,16 @@ struct Condition {
 	Condition* rc;
 
 	Condition() {
-		op = NOT;
 		lc = rc = NULL;
 	}
 
-	Condition(BoolOp o) {
+	Condition(BoolAndArithOp o) {
 		op = o;
+		lc = rc = NULL;
+	}
+
+	Condition(std::string s) {
+		opd = s;
 		lc = rc = NULL;
 	}
 };
@@ -220,21 +143,342 @@ struct Statement {
 	 */
 	std::vector<int> value_list;
 
+
 	/*
 	 * boolean tree
 	 * NULL for none(insert and
 	 */
 	Condition* cond;
 
-	void treeInsert(Token node);
-	Condition* insertNodeSearch(Condition* &cond);
-	void rotate(Condition* &cond);
 	Statement() {
-		act = INVALID;
 		cond = NULL;
 	}
 
 };
+class Polish {
+private:
+	bool flag;
+	int isNeglect;
+	int count;
+	std::list<std::string> ops;
+	std::queue<std::string> rp;
+	std::map<std::string, int> level;
+	std::set<std::string> _ops;
+public:
+	Polish() {
+		level.insert(std::pair<std::string, int>("+", 3));
+		level.insert(std::pair<std::string, int>("-", 3));
+		level.insert(std::pair<std::string, int>("*", 4));
+		level.insert(std::pair<std::string, int>("/", 4));
+		level.insert(std::pair<std::string, int>("==", 1));
+		level.insert(std::pair<std::string, int>("<>", 1));
+		level.insert(std::pair<std::string, int>(">", 2));
+		level.insert(std::pair<std::string, int>("<", 2));
+		level.insert(std::pair<std::string, int>(">=", 2));
+		level.insert(std::pair<std::string, int>("<=", 2));
+		level.insert(std::pair<std::string, int>("!", 0));
+		level.insert(std::pair<std::string, int>("&&", -1));
+		level.insert(std::pair<std::string, int>("||", -1));
+		level.insert(std::pair<std::string, int>("(", -2));
+		level.insert(std::pair<std::string, int>(")", -2));
+		_ops.insert("+");
+		_ops.insert("-");
+		_ops.insert("*");
+		_ops.insert("/");
+		_ops.insert("<");
+		_ops.insert(">");
+		_ops.insert("<=");
+		_ops.insert(">=");
+		_ops.insert("==");
+		_ops.insert("<>");
+		_ops.insert("&&");
+		_ops.insert("||");
+		_ops.insert("!");
+		isNeglect = 0;
+		count = -1;
+		flag = false;
+	}
+	void neglect() {
+		flag = true;
+	}
+	void Insert(const std::string& item) {
+		if (_ops.find(item) != _ops.end()) {
+			while (!ops.empty() && level.find(item)->second <= level.find(ops.back())->second) {
+				rp.push(ops.back());
+				ops.pop_back();
+			}
+			ops.push_back(item);
+		} else if (item == "(") {
+			if (flag) {
+				flag = false;
+				ops.push_back("(");
+				rp.push("0");
+				Insert("-");
+				isNeglect++;
+				count++;
+			} else if (count != -1) {
+				isNeglect++;
+			}
+			ops.push_back("(");
+		} else if (item == ")") {
+			if (count != -1) {
+				isNeglect--;
+				if (isNeglect == count) {
+					while (ops.back() != "(") {
+						rp.push(ops.back());
+						ops.pop_back();
+					}
+					ops.pop_back();
+					count--;
+				}
+			}
+			while (ops.back() != "(") {
+				rp.push(ops.back());
+				ops.pop_back();
+			}
+			ops.pop_back();
+		} else {
+			if (flag) {
+				int tm;
+				if (isNum(tm, item)) {
+					rp.push("-" + item);
+				} else {
+					ops.push_back("(");
+					rp.push("0");
+					Insert("-");
+					rp.push(item);
+					while (ops.back() != "(") {
+						rp.push(ops.back());
+						ops.pop_back();
+					}
+					ops.pop_back();
+				}
+				flag = false;
+			} else {
+				rp.push(item);
+			}
+		}
+	}
+	int Calculate() {
+		std::stack<int> nums;
+		while (!ops.empty()) {
+			rp.push(ops.back());
+			ops.pop_back();
+		}
+		while (!rp.empty()) {
+			std::string to_ret = rp.front();
+			rp.pop();
+			if (_ops.find(to_ret) != _ops.end()) {
+				if (nums.size() < 2) {
+					std::cerr << "Wrong expression.\n";
+					return 0;
+				} else {
+					int b = nums.top();
+					nums.pop();
+					int a = nums.top();
+					nums.pop();
+					if (to_ret == "+") {
+						nums.push(a + b);
+					} else if (to_ret == "*") {
+						nums.push(a * b);
+					} else if (to_ret == "-") {
+						nums.push(a - b);
+					} else if (to_ret == "/") {
+						nums.push(a / b);
+					}
+				}
+			} else {
+				nums.push(atoi(to_ret.c_str()));
+			}
+		}
+		if (nums.size() != 1) {
+			std::cerr << "Wrong expression.\n";
+			return 0;
+		} else {
+			int t = nums.top();
+			nums.pop();
+			return t;
+		}
+	}
+	Condition* buildTree() {
+		Condition *t = new Condition();
+		std::stack<Condition*> nums;
+		while (!ops.empty()) {
+			rp.push(ops.back());
+			ops.pop_back();
+		}
+		while (!rp.empty()) {
+			std::string to_ret = rp.front();
+			rp.pop();
+			if (_ops.find(to_ret) != _ops.end()) {
+				if (to_ret != "!" && nums.size() < 2) {
+					std::cerr << "Wrong expression.\n";
+					return 0;
+				} else if (to_ret != "!") {
+					Condition* b = nums.top();
+					nums.pop();
+					Condition* a = nums.top();
+					nums.pop();
+					if (to_ret == "+") {
+						int numa, numb;
+						if (isNum(numa, a->opd) && isNum(numb, b->opd)) {
+							int result = numa + numb;
+							char a[100];
+							sprintf(a, "%d", result);
+							nums.push(new Condition(a));
+						} else {
+							Condition* re = new Condition();
+							re->lc = b;
+							re->rc = a;
+							re->opd = "no num";
+							re->op = PLUS;
+							nums.push(re);
+						}
+					} else if (to_ret == "*") {
+						int numa, numb;
+						if (isNum(numa, a->opd) && isNum(numb, b->opd)) {
+							int result = numa * numb;
+							char a[100];
+							sprintf(a, "%d", result);
+							nums.push(new Condition(a));
+						} else {
+							Condition* re = new Condition();
+							re->lc = b;
+							re->rc = a;
+							re->opd = "no num";
+							re->op = MULTIPLY;
+							nums.push(re);
+						}
+					} else if (to_ret == "-") {
+						int numa, numb;
+						if (isNum(numa, a->opd) && isNum(numb, b->opd)) {
+							int result = numa - numb;
+							char a[100];
+							sprintf(a, "%d", result);
+							nums.push(new Condition(a));
+						} else {
+							Condition* re = new Condition();
+							re->lc = b;
+							re->rc = a;
+							re->opd = "no num";
+							re->op = PLUS;
+							nums.push(re);
+						}
+					} else if (to_ret == "/") {
+						int numa, numb;
+						if (isNum(numa, a->opd) && isNum(numb, b->opd)) {
+							int result = numa / numb;
+							char a[100];
+							sprintf(a, "%d", result);
+							nums.push(new Condition(a));
+						} else {
+							Condition* re = new Condition();
+							re->lc = b;
+							re->rc = a;
+							re->opd = "no num";
+							re->op = PLUS;
+							nums.push(re);
+						}
+					} else if (to_ret == "<"){
+						Condition* re = new Condition();
+						re->lc = b;
+						re->rc = a;
+						re->opd = "no num";
+						re->op = LT;
+						nums.push(re);
+					} else if (to_ret == ">"){
+						Condition* re = new Condition();
+						re->lc = b;
+						re->rc = a;
+						re->opd = "no num";
+						re->op = GT;
+						nums.push(re);
+					} else if (to_ret == "<="){
+						Condition* re = new Condition();
+						re->lc = b;
+						re->rc = a;
+						re->opd = "no num";
+						re->op = LTE;
+						nums.push(re);
+					} else if (to_ret == ">="){
+						Condition* re = new Condition();
+						re->lc = b;
+						re->rc = a;
+						re->opd = "no num";
+						re->op = GTE;
+						nums.push(re);
+					} else if (to_ret == "<>"){
+						Condition* re = new Condition();
+						re->lc = b;
+						re->rc = a;
+						re->opd = "no num";
+						re->op = NE;
+						nums.push(re);
+					} else if (to_ret == "=="){
+						Condition* re = new Condition();
+						re->lc = b;
+						re->rc = a;
+						re->opd = "no num";
+						re->op = EQ;
+						nums.push(re);
+					} else if (to_ret == "&&"){
+						Condition* re = new Condition();
+						re->lc = b;
+						re->rc = a;
+						re->opd = "no num";
+						re->op = AND;
+						nums.push(re);
+					} else if (to_ret == "||"){
+						Condition* re = new Condition();
+						re->lc = b;
+						re->rc = a;
+						re->opd = "no num";
+						re->op = OR;
+						nums.push(re);
+					}
+				} else if (to_ret == "!") {
+					if (nums.size() < 1) {
+						std::cerr << "Wrong expression.\n";
+						return 0;
+					}
+					Condition* a = nums.top();
+					nums.pop();
+					Condition* re = new Condition();
+					re->lc = a;
+					re->opd = "no num";
+					re->op = NOT;
+					nums.push(re);
+				}
+			} else {
+				Condition* tmp = new Condition();
+				tmp->opd = to_ret;
+				nums.push(tmp);
+			}
+		}
+		if (nums.size() != 1) {
+			std::cerr << "Wrong expression.\n";
+			return 0;
+		} else {
+			Condition* t = nums.top();
+			nums.pop();
+			return t;
+		}
+	}
+
+	bool isNum(int &num, std::string str) {
+		int i = 0;
+		while (str[i] == '-') i++;
+		for (; i < str.size(); i++) {
+			if (str[i] > '9' || str[i] < '0') {
+				return false;
+			}
+		}
+		num = std::atoi(str.c_str());
+		return true;
+	}
+};
+
+
 
 /*ERROR Handling
  * The parser should handle the ill-formed statements, but
@@ -323,7 +567,7 @@ private:
 	void initTable();
 	void initTerminal();
 	void initAction();
-	typedef void (*act)(Statement &s, Token t, std::string father);
+	typedef void (*act)(Statement &s, Token t, std::string father, Polish* &calc);
 	std::map<std::pair<std::string, std::string>, std::list<std::string> > table;
 	std::set<std::string> terminal;
 	std::map<std::string, act> action;
