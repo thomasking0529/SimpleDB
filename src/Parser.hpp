@@ -199,7 +199,7 @@ public:
 		flag = false;
 	}
 	void neglect() {
-		flag = true;
+		flag = !flag;
 	}
 	void Insert(const std::string& item) {
 		if (_ops.find(item) != _ops.end()) {
@@ -241,7 +241,10 @@ public:
 			if (flag) {
 				int tm;
 				if (isNum(tm, item)) {
-					rp.push("-" + item);
+					int result = -tm;
+					char a[100];
+					sprintf(a, "%d", result);
+					rp.push(std::string(a));
 				} else {
 					ops.push_back("(");
 					rp.push("0");
