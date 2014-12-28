@@ -300,8 +300,7 @@ Statement Parser::Parse(const std::string& s) {
 			//printf("next:  %s    %s   \n", ts.front().value.c_str(), procedure.top().c_str());
 		} else {
 			procedure.pop();
-			std::list<std::string> af
-				= table[std::make_pair(top, getTokenSymbol(ts.front()))];
+			std::list<std::string> af = table[std::make_pair(top, getTokenSymbol(ts.front()))];
 			std::list<std::string>::reverse_iterator i = af.rbegin();
 			for (; i != af.rend(); ++i) {
 				father.push(top);
