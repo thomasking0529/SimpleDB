@@ -333,8 +333,8 @@ public:
 							nums.push(new Condition(a));
 						} else {
 							Condition* re = new Condition();
-							re->lc = b;
-							re->rc = a;
+							re->lc = a;
+							re->rc = b;
 							re->opd = "no num";
 							re->op = PLUS;
 							nums.push(re);
@@ -348,8 +348,8 @@ public:
 							nums.push(new Condition(a));
 						} else {
 							Condition* re = new Condition();
-							re->lc = b;
-							re->rc = a;
+							re->lc = a;
+							re->rc = b;
 							re->opd = "no num";
 							re->op = MULTIPLY;
 							nums.push(re);
@@ -363,8 +363,8 @@ public:
 							nums.push(new Condition(a));
 						} else {
 							Condition* re = new Condition();
-							re->lc = b;
-							re->rc = a;
+							re->lc = a;
+							re->rc = b;
 							re->opd = "no num";
 							re->op = MINUS;
 							nums.push(re);
@@ -378,8 +378,8 @@ public:
 							nums.push(new Condition(a));
 						} else {
 							Condition* re = new Condition();
-							re->lc = b;
-							re->rc = a;
+							re->lc = a;
+							re->rc = b;
 							re->opd = "no num";
 							re->op = DIVIDE;
 							nums.push(re);
