@@ -20,6 +20,15 @@ int main(int argc, char *argv[]) {
 		int line_count = 1;
 
 		while (std::getline(fin, es)) {
+			while (es[es.size() - 1] == ' ' || es[es.size() - 1] == '\t')
+				es.erase(es.end() - 1);
+			while (es[es.size() - 1] != ';') {
+				std::string tmp;
+				std::getline(fin, tmp);
+				es += tmp;
+				while (es[es.size() - 1] == ' ' || es[es.size() - 1] == '\t')
+					es.erase(es.end() - 1);
+			}
 			std::cout << "Line " << line_count << ": " << es << std::endl;
 			line_count++;
 			db->Execute(es);

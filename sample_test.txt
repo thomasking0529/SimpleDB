@@ -1,3 +1,5 @@
+select *    
+from student;   
 create table student(sid int, age int, time int, money int);
 create table student(sid int, primary key(sid), age int, time int, money int);
 insert into student(sid, age, time, money) values(8, 9, 11, 100);
