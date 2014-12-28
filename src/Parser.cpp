@@ -293,7 +293,7 @@ Statement Parser::Parse(const std::string& s) {
 				throw SDBException("unexpected token");
 				break;
 			}
-			printf("%s    %s   \n", top.c_str(), fa.c_str());
+			//printf("%s    %s   \n", top.c_str(), fa.c_str());
 			action[top](st, ts.front(), fa, calc);
 			ts.pop_front();
 			procedure.pop();
