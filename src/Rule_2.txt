@@ -11,7 +11,7 @@ decl id id int default_spec
 decl primary primary key ( column_list ) 
 column_list id id column_list* 
 column_list* , , column_list 
-column_list* ) #  
+column_list* ) # 
 column_list* from # 
 default_spec default default = simple_expr 
 default_spec , # 
@@ -22,7 +22,7 @@ simple_expr - simple_term simple_expr*
 simple_expr num simple_term simple_expr* 
 simple_expr* + + simple_term simple_expr* 
 simple_expr* - - simple_term simple_expr* 
-simple_expr* ) #  
+simple_expr* ) # 
 simple_expr* , # 
 simple_term ( simple_unary simple_term* 
 simple_term - simple_unary simple_term* 
@@ -30,7 +30,7 @@ simple_term + simple_unary simple_term*
 simple_term num simple_unary simple_term* 
 simple_term* * * simple_unary simple_term* 
 simple_term* / / simple_unary simple_term* 
-simple_term* ) #  
+simple_term* ) # 
 simple_term* , # 
 simple_term* + # 
 simple_term* - # 
@@ -55,7 +55,7 @@ disjunct id conjunct disjunct*
 disjunct num conjunct disjunct* 
 disjunct ! conjunct disjunct* 
 disjunct* || || conjunct disjunct* 
-disjunct* ) #  
+disjunct* ) # 
 disjunct* ; # 
 conjunct - bool conjunct* 
 conjunct + bool conjunct* 
@@ -64,10 +64,10 @@ conjunct num bool conjunct*
 conjunct ( bool conjunct* 
 conjunct ! bool conjunct* 
 conjunct* && && conjunct 
-conjunct* ) #  
+conjunct* ) # 
 conjunct* || # 
 conjunct* ; # 
-bool (  ( disjunct ) 
+bool ( ( disjunct ) 
 bool ! ! bool 
 bool - comp 
 bool + comp 
@@ -89,7 +89,7 @@ expr id term expr*
 expr num term expr* 
 expr* + + term expr* 
 expr* - - term expr* 
-expr* ) #  
+expr* ) # 
 expr* ; # 
 expr* || # 
 expr* && # 
@@ -103,7 +103,7 @@ term - unary term*
 term + unary term* 
 term id unary term* 
 term num unary term* 
-term* ) #  
+term* ) # 
 term* ; # 
 term* || # 
 term* && # 
