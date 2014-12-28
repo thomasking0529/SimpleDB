@@ -386,57 +386,57 @@ public:
 						}
 					} else if (to_ret == "<"){
 						Condition* re = new Condition();
-						re->lc = b;
-						re->rc = a;
+						re->lc = a;
+						re->rc = b;
 						re->opd = "no num";
 						re->op = LT;
 						nums.push(re);
 					} else if (to_ret == ">"){
 						Condition* re = new Condition();
-						re->lc = b;
-						re->rc = a;
+						re->lc = a;
+						re->rc = b;
 						re->opd = "no num";
 						re->op = GT;
 						nums.push(re);
 					} else if (to_ret == "<="){
 						Condition* re = new Condition();
-						re->lc = b;
-						re->rc = a;
+						re->lc = a;
+						re->rc = b;
 						re->opd = "no num";
 						re->op = LTE;
 						nums.push(re);
 					} else if (to_ret == ">="){
 						Condition* re = new Condition();
-						re->lc = b;
-						re->rc = a;
+						re->lc = a;
+						re->rc = b;
 						re->opd = "no num";
 						re->op = GTE;
 						nums.push(re);
 					} else if (to_ret == "<>"){
 						Condition* re = new Condition();
-						re->lc = b;
-						re->rc = a;
+						re->lc = a;
+						re->rc = b;
 						re->opd = "no num";
 						re->op = NE;
 						nums.push(re);
 					} else if (to_ret == "=="){
 						Condition* re = new Condition();
-						re->lc = b;
-						re->rc = a;
+						re->lc = a;
+						re->rc = b;
 						re->opd = "no num";
 						re->op = EQ;
 						nums.push(re);
 					} else if (to_ret == "&&"){
 						Condition* re = new Condition();
-						re->lc = b;
-						re->rc = a;
+						re->lc = a;
+						re->rc = b;
 						re->opd = "no num";
 						re->op = AND;
 						nums.push(re);
 					} else if (to_ret == "||"){
 						Condition* re = new Condition();
-						re->lc = b;
-						re->rc = a;
+						re->lc = a;
+						re->rc = b;
 						re->opd = "no num";
 						re->op = OR;
 						nums.push(re);
