@@ -1,126 +1,126 @@
-ssql_stmt create create_stmt
-ssql_stmt insert insert_stmt
-ssql_stmt delete delete_stmt
-ssql_stmt select query_stmt
-create_stmt create create table id ( decl_list ) ;
-decl_list id decl decl_list*
-decl_list primary decl decl_list*
-decl_list* , , decl decl_list*
-decl_list* ) #
-decl id id int default_spec
-decl primary primary key ( column_list )
-column_list id id column_list*
-column_list* , , column_list
-column_list* ) # 
-column_list* from #
-default_spec default default = simple_expr
-default_spec , #
-default_spec ) #
-simple_expr ( simple_term simple_expr*
-simple_expr + simple_term simple_expr*
-simple_expr - simple_term simple_expr*
-simple_expr num simple_term simple_expr*
-simple_expr* + + simple_term simple_expr*
-simple_expr* - - simple_term simple_expr*
-simple_expr* ) # 
-simple_expr* , #
-simple_term ( simple_unary simple_term*
-simple_term - simple_unary simple_term*
-simple_term + simple_unary simple_term*
-simple_term num simple_unary simple_term*
-simple_term* * * simple_unary simple_term*
-simple_term* / / simple_unary simple_term*
-simple_term* ) # 
-simple_term* , #
-simple_term* + #
-simple_term* - #
-simple_unary ( ( simple_expr )
-simple_unary - - simple_unary
-simple_unary + + simple_unary
-simple_unary num num
-insert_stmt insert insert into id ( column_list ) values ( value_list ) ;
-value_list ( simple_expr value_list*
-value_list + simple_expr value_list*
-value_list - simple_expr value_list*
-value_list num simple_expr value_list*
-value_list* , , simple_expr value_list*
-value_list* ) #
-delete_stmt delete delete from id where_clause ;
-where_clause where where disjunct
-where_clause ; #
-disjunct ( conjunct disjunct*
-disjunct - conjunct disjunct*
-disjunct + conjunct disjunct*
-disjunct id conjunct disjunct*
-disjunct num conjunct disjunct*
-disjunct ! conjunct disjunct*
-disjunct* || || conjunct disjunct*
-disjunct* ) # 
-disjunct* ; #
-conjunct - bool conjunct*
-conjunct + bool conjunct*
-conjunct id bool conjunct*
-conjunct num bool conjunct*
-conjunct ( bool conjunct*
-conjunct ! bool conjunct*
-conjunct* && && conjunct
-conjunct* ) # 
-conjunct* || #
-conjunct* ; #
-bool (  ( disjunct )
-bool ! ! bool
-bool - comp
-bool + comp
-bool id comp
-bool num comp
-comp - expr rop expr
-comp + expr rop expr
-comp id expr rop expr
-comp num expr rop expr
-rop <> <>
-rop == ==
-rop < <
-rop > >
-rop >= >=
-rop <= <=
-expr - term expr*
-expr + term expr*
-expr id term expr*
-expr num term expr*
-expr* + + term expr*
-expr* - - term expr*
-expr* ) # 
-expr* ; #
-expr* || #
-expr* && #
-expr* <> #
-expr* == #
-expr* > #
-expr* < #
-expr* >= #
-expr* <= #
-term - unary term*
-term + unary term*
-term id unary term*
-term num unary term*
-term* ) # 
-term* ; #
-term* || #
-term* && #
-term* <> #
-term* == #
-term* > #
-term* < #
-term* >= #
-term* <= #
-term* + #
-term* - #
-term* * * unary term*
-term* / / unary term*
-unary - - unary
-unary + + unary
-unary id id
-unary num num
-query_stmt select select select_list from id where_clause ;
-select_list * *
-select_list id column_list
+ssql_stmt create create_stmt 
+ssql_stmt insert insert_stmt 
+ssql_stmt delete delete_stmt 
+ssql_stmt select query_stmt 
+create_stmt create create table id ( decl_list ) ; 
+decl_list id decl decl_list* 
+decl_list primary decl decl_list* 
+decl_list* , , decl decl_list* 
+decl_list* ) # 
+decl id id int default_spec 
+decl primary primary key ( column_list ) 
+column_list id id column_list* 
+column_list* , , column_list 
+column_list* ) #  
+column_list* from # 
+default_spec default default = simple_expr 
+default_spec , # 
+default_spec ) # 
+simple_expr ( simple_term simple_expr* 
+simple_expr + simple_term simple_expr* 
+simple_expr - simple_term simple_expr* 
+simple_expr num simple_term simple_expr* 
+simple_expr* + + simple_term simple_expr* 
+simple_expr* - - simple_term simple_expr* 
+simple_expr* ) #  
+simple_expr* , # 
+simple_term ( simple_unary simple_term* 
+simple_term - simple_unary simple_term* 
+simple_term + simple_unary simple_term* 
+simple_term num simple_unary simple_term* 
+simple_term* * * simple_unary simple_term* 
+simple_term* / / simple_unary simple_term* 
+simple_term* ) #  
+simple_term* , # 
+simple_term* + # 
+simple_term* - # 
+simple_unary ( ( simple_expr ) 
+simple_unary - - simple_unary 
+simple_unary + + simple_unary 
+simple_unary num num 
+insert_stmt insert insert into id ( column_list ) values ( value_list ) ; 
+value_list ( simple_expr value_list* 
+value_list + simple_expr value_list* 
+value_list - simple_expr value_list* 
+value_list num simple_expr value_list* 
+value_list* , , simple_expr value_list* 
+value_list* ) # 
+delete_stmt delete delete from id where_clause ; 
+where_clause where where disjunct 
+where_clause ; # 
+disjunct ( conjunct disjunct* 
+disjunct - conjunct disjunct* 
+disjunct + conjunct disjunct* 
+disjunct id conjunct disjunct* 
+disjunct num conjunct disjunct* 
+disjunct ! conjunct disjunct* 
+disjunct* || || conjunct disjunct* 
+disjunct* ) #  
+disjunct* ; # 
+conjunct - bool conjunct* 
+conjunct + bool conjunct* 
+conjunct id bool conjunct* 
+conjunct num bool conjunct* 
+conjunct ( bool conjunct* 
+conjunct ! bool conjunct* 
+conjunct* && && conjunct 
+conjunct* ) #  
+conjunct* || # 
+conjunct* ; # 
+bool (  ( disjunct ) 
+bool ! ! bool 
+bool - comp 
+bool + comp 
+bool id comp 
+bool num comp 
+comp - expr rop expr 
+comp + expr rop expr 
+comp id expr rop expr 
+comp num expr rop expr 
+rop <> <> 
+rop == == 
+rop < < 
+rop > > 
+rop >= >= 
+rop <= <= 
+expr - term expr* 
+expr + term expr* 
+expr id term expr* 
+expr num term expr* 
+expr* + + term expr* 
+expr* - - term expr* 
+expr* ) #  
+expr* ; # 
+expr* || # 
+expr* && # 
+expr* <> # 
+expr* == # 
+expr* > # 
+expr* < # 
+expr* >= # 
+expr* <= # 
+term - unary term* 
+term + unary term* 
+term id unary term* 
+term num unary term* 
+term* ) #  
+term* ; # 
+term* || # 
+term* && # 
+term* <> # 
+term* == # 
+term* > # 
+term* < # 
+term* >= # 
+term* <= # 
+term* + # 
+term* - # 
+term* * * unary term* 
+term* / / unary term* 
+unary - - unary 
+unary + + unary 
+unary id id 
+unary num num 
+query_stmt select select select_list from id where_clause ; 
+select_list * * 
+select_list id column_list 

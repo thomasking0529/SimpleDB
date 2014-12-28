@@ -19,41 +19,54 @@ void Table::Insert(const std::vector<int>& a) {
 	}
 }
 
-int getOp(const std::vector<Property> &props, const Row &r,
-		const Condition* cond) {
-	if (isNum(cond->opd)) {
-		// get num from string
-		return atoi(cond->opd.c_str());
-	} else {
-		// get value of that column
-		int index;
-		for (unsigned int i = 0; i < props.size(); i++) {
-			if (props[i].id == cond->opd) {
-				index = i;
-				break;
-			}
-		}
-		return r.cols[index];
-	}
-}
-
-bool checkCond(const std::vector<Property> &props, const Row &r,
+int checkCond(const std::vector<Property> &props, const Row &r,
 		const Condition* cond) {
 	if (cond == NULL) {
 		return true;
 	}
-	// when op is AND/OR, check condition recursively on left branch and right branch
-	if (cond->op == AND) {
-		return checkCond(props, r, cond->lc) && checkCond(props, r, cond->rc);
-	} else if (cond->op == OR) {
-		return checkCond(props, r, cond->lc) || checkCond(props, r, cond->rc);
+
+	if (cond->opd != "no num") {
+		if (isNum(cond->opd)) {
+			// get num from string
+			return atoi(cond->opd.c_str());
+		} else {
+			// get value of that column
+			int index;
+			for (unsigned int i = 0; i < props.size(); i++) {
+				if (props[i].id == cond->opd) {
+					index = i;
+					break;
+				}
+			}
+			return r.cols[index];
+		}
 	}
 
-	// when op is LT/GT/NE/EQ/GTE/LTE, just fetch two operands
-	int leftOp, rightOp;
-	leftOp = getOp(props, r, cond->lc);
-	rightOp = getOp(props, r, cond->rc);
+	int rightOp;
+	rightOp = checkCond(props, r, cond->rc);
+
+	// test	
+	// std::cerr << "rightOp: " << rightOp << std::endl;
+	// test
+
+	// when op is NOT
+	if (cond->op == NOT) {
+		return (!rightOp);
+	}
+
+	// when op is AND/OR/LT/GT/NE/EQ/GTE/LTE, just fetch two operands
+	int leftOp;
+	leftOp = checkCond(props, r, cond->lc) ;
+
+	// test
+	// std::cerr << "leftOp: " << leftOp << std::endl;
+	// test
+
 	switch (cond->op) {
+	case AND:
+		return leftOp && rightOp;
+	case OR:
+		return leftOp || rightOp;
 	case LT:
 		return (leftOp < rightOp);
 	case GT:
@@ -66,8 +79,14 @@ bool checkCond(const std::vector<Property> &props, const Row &r,
 		return (leftOp >= rightOp);
 	case LTE:
 		return (leftOp <= rightOp);
-	case NOT:
-		return (!rightOp);
+	case PLUS:
+		return (leftOp+rightOp);
+	case MINUS:
+		return (leftOp-rightOp);
+	case MULTIPLY:
+		return (leftOp*rightOp);
+	case DIVIDE:
+		return (leftOp/rightOp);
 	}
 	return false;
 }
@@ -76,6 +95,11 @@ std::vector<int> Table::Query(const Condition* cond) {
 	std::vector<int> keyOfRows;
 	std::set<Row>::iterator it = rows.begin();
 	for (; it != rows.end(); it++) {
+
+		// test
+		// std::cerr <<  "checkCond: " << checkCond(props, *it, cond) << std::endl;
+		// test
+
 		if (checkCond(props, *it, cond)) {
 			keyOfRows.push_back(it->key);
 		}
