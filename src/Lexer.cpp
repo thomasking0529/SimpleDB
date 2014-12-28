@@ -141,7 +141,7 @@ std::list<std::string> Lexer::split(const std::string& s) {
 	std::list<std::string> ret;
 	std::string t = "";
 	for (int i = 0; i < s.size(); i++) {
-		if (s[i] == ' ' || s[i] == '\t') {
+		if (s[i] == ' ' || s[i] == '\t' || s[i] == '\n') {
 			if (t != "") {
 				ret.push_back(t);
 				t = "";
