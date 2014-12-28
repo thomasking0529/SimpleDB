@@ -10,6 +10,15 @@
 #include "Core.hpp"
 #include "Parser.hpp"
 
+bool isEmpty(const std::string& s) {
+	for(auto& i : s) {
+		if(i != ' ' && i != '\n' && i != '\t') {
+			return false;
+		}
+	}
+	return true;
+}
+
 int main(int argc, char *argv[]) {
 	SimpleDB* db = new SimpleDB();
 	if (argc == 2) {
@@ -19,10 +28,10 @@ int main(int argc, char *argv[]) {
 
 		int line_count = 1;
 
-		while (std::getline(fin, es, ';')) {
+		while (std::getline(fin, es, ';') && !isEmpty(es)) {
 			std::cout << "SDB SQL " << line_count << ": " << es << std::endl;
 			line_count++;
-			db->Execute(es);
+			db->Execute(es + ";");
 		}
 	} else {
 		Polish p;

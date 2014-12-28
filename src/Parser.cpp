@@ -5,8 +5,8 @@
  *      Author: thomas
  */
 
-#define RULE "Rule_2.txt"
-#define TERMINAL "Terminal_list_2.txt"
+#define RULE "Rules.txt"
+#define TERMINAL "Terminals.txt"
 #include <string>
 #include <cstring>
 #include <stack>
