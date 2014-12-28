@@ -37,6 +37,7 @@ void Parser::initTable() {
 			lst.push_back(next);
 			next = strtok (NULL, " ");
 		}
+		lst.pop_back();
 		table[std::make_pair(top, front)] = lst;
 	}
 	fclose(file);
