@@ -315,6 +315,10 @@ Statement Parser::Parse(const std::string& s) {
 	if (calc != NULL && (st.act == DELETE || st.act == QUERY)) {
 		st.cond = calc->buildTree();
 	}
+	if (ts.size() != 0) {
+		printf("haven't test condtion in parser.cpp");
+		throw SDBException("unknown error");
+	}
 	return st;
 }
 
