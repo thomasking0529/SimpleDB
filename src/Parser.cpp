@@ -195,7 +195,7 @@ void Parser::initAction() {
 			calc->Insert(t.value);
 		} else if (calc != NULL && father == "bool"){
 			calc->Insert(t.value);
-		} else if (father == "create_stmt" || father == "insert_stmt"){
+		} else if (father == "create_stmt" || father == "insert_stmt" || father == "decl"){
 		} else {
 			throw SDBException("something wrong");
 		}
@@ -228,6 +228,7 @@ void Parser::initAction() {
 			}
 		} else if (father == "bool") {
 			calc->Insert(t.value);
+		} else if (father == "decl") {
 		} else {
 			throw SDBException("something wrong");
 		}
