@@ -153,7 +153,7 @@ std::list<Token> Lexer::GetTokens(const std::string& a) {
 				if (t[0] >= '0' && t[0] <= '9') {
 					for (int i = 1; i < t.size(); i++) {
 						if (!(t[i] >= '0' && t[i] <= '9')) {
-							throw(new SDBException("Illegal Tokens"));
+							throw(SDBException("Illegal Tokens"));
 						}
 					}
 					ret.push_back(Token(NUM, t, locs[cc] - t.size(), line_count));
@@ -161,6 +161,9 @@ std::list<Token> Lexer::GetTokens(const std::string& a) {
 				}
 				else if ((t[0] >= 'a' && t[0] <= 'z')
 					|| (t[0] >= 'A' && t[0] <= 'Z') || t[0] == '_') {
+					if(t.size() >= MAX_ID_LEN) {
+						throw(SDBException("Token Length Too Long"));
+					}
 					ret.push_back(Token(ID, t, locs[cc] - t.size(), line_count));
 				}
 			}
@@ -184,7 +187,7 @@ std::list<std::string> Lexer::split(const std::string& s) {
 			saveTo(ret);
 			saveTo(std::string("") + s[i], ret);
 		} else if ((s[i] >= 'a' && s[i] <= 'z') || (s[i] >= 'A' && s[i] <= 'Z')
-				|| (s[i] >= '0' && s[i] <= '9')) {
+				|| (s[i] >= '0' && s[i] <= '9' || s[i] == '_')) {
 			t += s[i];
 			//< <= <>
 		} else if (s[i] == '<') {
