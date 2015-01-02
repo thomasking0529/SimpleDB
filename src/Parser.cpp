@@ -84,7 +84,7 @@ void Parser::initAction() {
 		} else if (father == "column_list") {
 			if (s.act == CREATE) {
 				s.key_idx.push_back(t.value);
-			} else if (s.act == QUERY) {
+			} else if (s.act == QUERY || s.act == INSERT) {
 				Property p;
 				p.id = t.value;
 				p.default_value = 0;
