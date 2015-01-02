@@ -114,10 +114,7 @@ public:
 		Statement s;
 		try {
 			s = parser->Parse(stmt);
-		} catch (SDBLexerException& e) {
-			e.Print();
-			return;
-		} catch (SDBParserException& e) {
+		} catch (SDBException& e) {
 			e.Print();
 			return;
 		}

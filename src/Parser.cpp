@@ -93,7 +93,7 @@ void Parser::initAction() {
 		} else if (calc != NULL && father == "unary") {
 			calc->Insert(t.value);
 		} else {
-			throw SDBParserException("something wrong");
+			throw SDBException("something wrong");
 		}
 	};
 	action["num"] = [](Statement &s, Token t, std::string father, Polish* &calc) {
@@ -103,7 +103,7 @@ void Parser::initAction() {
 		} else if (calc != NULL && father == "unary") {
 			calc->Insert(t.value);
 		} else {
-			//throw SDBParserException("something wrong");
+			//throw SDBException("something wrong");
 		}
 	};
 	action["<="] = action[">="] = action["<"] = action[">"] = action["=="] = action["<>"]
@@ -111,28 +111,28 @@ void Parser::initAction() {
 		if (calc != NULL && father == "rop") {
 			calc->Insert(t.value);
 		} else {
-			throw SDBParserException("something wrong");
+			throw SDBException("something wrong");
 		}
 	};
 	action["&&"] = [](Statement &s, Token t, std::string father, Polish* &calc) {
 		if (calc != NULL && father == "conjunct*") {
 			calc->Insert(t.value);
 		} else {
-			throw SDBParserException("something wrong");
+			throw SDBException("something wrong");
 		}
 	};
 	action["||"] = [](Statement &s, Token t, std::string father, Polish* &calc) {
 		if (calc != NULL && father == "disjunct*") {
 			calc->Insert(t.value);
 		} else {
-			throw SDBParserException("something wrong");
+			throw SDBException("something wrong");
 		}
 	};
 	action["!"] = [](Statement &s, Token t, std::string father, Polish* &calc) {
 		if (calc != NULL && father == "bool") {
 			calc->Insert(t.value);
 		} else {
-			throw SDBParserException("something wrong");
+			throw SDBException("something wrong");
 		}
 	};
 	action["*"] = [](Statement &s, Token t, std::string father, Polish* &calc) {
@@ -146,7 +146,7 @@ void Parser::initAction() {
 		} else if (calc != NULL && father == "term*") {
 			calc->Insert(t.value);
 		} else {
-			throw SDBParserException("something wrong");
+			throw SDBException("something wrong");
 		}
 	};
 	action["/"] = [](Statement &s, Token t, std::string father, Polish* &calc) {
@@ -155,7 +155,7 @@ void Parser::initAction() {
 		} else if (calc != NULL && father == "term*") {
 			calc->Insert(t.value);
 		} else {
-			throw SDBParserException("something wrong");
+			throw SDBException("something wrong");
 		}
 	};
 	action["+"] = [](Statement &s, Token t, std::string father, Polish* &calc) {
@@ -168,7 +168,7 @@ void Parser::initAction() {
 		} else if (calc != NULL && father == "expr*"){
 			calc->Insert(t.value);
 		} else {
-			throw SDBParserException("something wrong");
+			throw SDBException("something wrong");
 		}
 	};
 	action["-"] = [](Statement &s, Token t, std::string father, Polish* &calc) {
@@ -184,7 +184,7 @@ void Parser::initAction() {
 		} else if (calc != NULL && father == "unary"){
 			calc->neglect();
 		} else {
-			throw SDBParserException("something wrong");
+			throw SDBException("something wrong");
 		}
 	};	
 	action["("] = [](Statement &s, Token t, std::string father, Polish* &calc) {
@@ -197,7 +197,7 @@ void Parser::initAction() {
 			calc->Insert(t.value);
 		} else if (father == "create_stmt" || father == "insert_stmt"){
 		} else {
-			throw SDBParserException("something wrong");
+			throw SDBException("something wrong");
 		}
 	};
 	action[")"] = [](Statement &s, Token t, std::string father, Polish* &calc) {
@@ -229,7 +229,7 @@ void Parser::initAction() {
 		} else if (father == "bool") {
 			calc->Insert(t.value);
 		} else {
-			throw SDBParserException("something wrong");
+			throw SDBException("something wrong");
 		}
 	};
 	action[","] = [](Statement &s, Token t, std::string father, Polish* &calc) {
@@ -254,7 +254,7 @@ void Parser::initAction() {
 			calc = NULL;
 		} else if (father == "column_list*" || father == "insert_stmt" || father == "decl_list*"){
 		} else {
-			throw SDBParserException("something wrong");
+			throw SDBException("something wrong");
 		}
 	};
 
@@ -297,7 +297,7 @@ Statement Parser::Parse(const std::string& s) {
 		} else if (terminal.count(top) > 0) {
 			if (ts.front().type != ID && ts.front().type != NUM
 				&& ts.front().value != top) {
-				throw SDBParserException("unexpected token");
+				throw SDBException("unexpected token");
 				break;
 			}
 			//printf("%s    %s   \n", top.c_str(), fa.c_str());
@@ -317,13 +317,13 @@ Statement Parser::Parse(const std::string& s) {
 		fa = father.top();
 		top = procedure.top();
 	}
-	if (top != "$") throw SDBParserException("unknown error");
+	if (top != "$") throw SDBException("unknown error");
 	if (calc != NULL && (st.act == DELETE || st.act == QUERY)) {
 		st.cond = calc->buildTree();
 	}
 	if (ts.size() != 0) {
 		printf("haven't test condtion in parser.cpp");
-		throw SDBParserException("unknown error");
+		throw SDBException("unknown error");
 	}
 	return st;
 }
