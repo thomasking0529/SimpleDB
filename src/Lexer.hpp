@@ -34,9 +34,12 @@ enum TokenType {
 struct Token {
 	//type of token
 	TokenType type;
+	//start location of token
+	int col;
 	//value of token, raw string
 	std::string value;
-	Token(TokenType t, const std::string& v) {
+	Token(TokenType t, const std::string& v, int c) {
+		col = c;
 		type = t;
 		value = v;
 	}
@@ -50,6 +53,20 @@ private:
 	std::set<std::string> ops;
 	//split input string into a list
 	std::list<std::string> split(const std::string& s);
+	std::vector<int> locs;
+	std::string t;
+	void saveTo(const std::string& t, std::list<std::string>& s) {
+		s.push_back(t);
+		locs.push_back(count);
+	} 
+
+	void saveTo(std::list<std::string>& s) {
+		if(t != "") {
+			s.push_back(t);
+			locs.push_back(count);
+			t = "";
+		}
+	} 
 public:
 	Lexer();
 	/*

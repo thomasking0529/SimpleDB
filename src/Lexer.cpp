@@ -109,14 +109,16 @@ bool is_keyword(const std::string& s) {
 
 std::list<Token> Lexer::GetTokens(const std::string& a) {
 	count=0;
+	locs.clear();
 	std::list<std::string> tmp = split(a);
 	std::list<Token> ret;
+	int cc = 0;
 	for (auto& t : tmp) {
 		if (is_keyword(t)) {
 			std::for_each(t.begin(), t.end(), to_lower);
-			ret.push_back(Token(KEYWORD, t));
+			ret.push_back(Token(KEYWORD, t, locs[cc] - t.size()));
 		} else if (ops.find(t) != ops.end()) {
-			ret.push_back(Token(OP, t));
+			ret.push_back(Token(OP, t, locs[cc] - t.size()));
 		} else {
 			//NUM
 			if (t[0] >= '0' && t[0] <= '9') {
@@ -125,83 +127,66 @@ std::list<Token> Lexer::GetTokens(const std::string& a) {
 						throw(new SDBLexerException("Illegal Tokens"));
 					}
 				}
-				ret.push_back(Token(NUM, t));
+				ret.push_back(Token(NUM, t, locs[cc] - t.size()));
 			//ID
 			} else if ((t[0] >= 'a' && t[0] <= 'z')
 					|| (t[0] >= 'A' && t[0] <= 'Z') || t[0] == '_') {
-				ret.push_back(Token(ID, t));
+				ret.push_back(Token(ID, t, locs[cc] - t.size()));
 			}
 		}
+		cc++;
 	}
 	return ret;
 }
 
 std::list<std::string> Lexer::split(const std::string& s) {
 	std::list<std::string> ret;
-	std::string t = "";
+	t = "";
 	for (int i = 0; i < s.size(); i++) {
 		if (s[i] == ' ' || s[i] == '\t' || s[i] == '\n') {
-			if (t != "") {
-				ret.push_back(t);
-				t = "";
-			}
+			saveTo(ret);
 		} else if (symbols.find(s[i]) != symbols.end()) {
-			if (t != "") {
-				ret.push_back(t);
-				t = "";
-			}
-			ret.push_back(std::string("") + s[i]);
+			saveTo(ret);
+			saveTo(std::string("") + s[i], ret);
 		} else if ((s[i] >= 'a' && s[i] <= 'z') || (s[i] >= 'A' && s[i] <= 'Z')
 				|| (s[i] >= '0' && s[i] <= '9')) {
 			t += s[i];
 			//< <= <>
 		} else if (s[i] == '<') {
-			if (t != "") {
-				ret.push_back(t);
-				t = "";
-			}
+			saveTo(ret);
 			if (s[i + 1] == '>') {
-				ret.push_back("<>");
+				saveTo("<>", ret);
 				i++;
 			} else if (s[i + 1] == '=') {
-				ret.push_back("<=");
+				saveTo("<=", ret);
 				i++;
 			} else {
-				ret.push_back("<");
+				saveTo("<", ret);
 			}
 			//> >=
 		} else if (s[i] == '>') {
-			if (t != "") {
-				ret.push_back(t);
-				t = "";
-			}
+			saveTo(ret);
 			if (s[i + 1] == '=') {
-				ret.push_back(">=");
+				saveTo(">=", ret);
 				i++;
 			} else {
-				ret.push_back(">");
+				saveTo(">", ret);
 			}
 			//= ==
 			//= = will be interpreted as two "="
 		} else if (s[i] == '=') {
-			if (t != "") {
-				ret.push_back(t);
-				t = "";
-			}
+			saveTo(ret);
 			if (s[i + 1] == '=') {
-				ret.push_back("==");
+				saveTo("==", ret);
 				i++;
 			} else {
-				ret.push_back("=");
+				saveTo("=", ret);
 			}
 			//&& ||
 		} else if (s[i] == '&' || s[i] == '|') {
-			if (t != "") {
-				ret.push_back(t);
-				t = "";
-			}
+			saveTo(ret);
 			if (s[i + 1] == s[i]) {
-				ret.push_back(std::string("") + s[i] + s[i]);
+				saveTo(std::string("") + s[i] + s[i], ret);
 				i++;
 			} else {
 				std::stringstream ss;
@@ -209,11 +194,8 @@ std::list<std::string> Lexer::split(const std::string& s) {
 				throw(SDBLexerException(ss.str()));
 			}
 		} else if (s[i] == '!') {
-			if (t != "") {
-				ret.push_back(t);
-				t = "";
-			}
-			ret.push_back(std::string("") + s[i]);
+			saveTo(ret);
+			saveTo(std::string("") + s[i], ret);
 		} else {
 			std::stringstream ss;
 			ss << "Illegal Token at col " << count << " detected.";
@@ -221,9 +203,7 @@ std::list<std::string> Lexer::split(const std::string& s) {
 		}
 		count++;
 	}
-	if (t != "") {
-		ret.push_back(t);
-	}
+	saveTo(ret);
 	return ret;
 }
 
