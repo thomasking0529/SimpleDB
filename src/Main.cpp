@@ -12,7 +12,7 @@
 
 bool isEmpty(const std::string& s) {
 	for(auto& i : s) {
-		if(i != ' ' && i != '\n' && i != '\t') {
+		if(i != ' ' && i != '\n' && i != '\t' && i != '\r' ) {
 			return false;
 		}
 	}
