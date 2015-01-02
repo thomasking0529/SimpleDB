@@ -21,11 +21,10 @@ bool isEmpty(const std::string& s) {
 
 int main(int argc, char *argv[]) {
 	SimpleDB* db = new SimpleDB();
+	std::string es;
+	std::ifstream fin;
 	if (argc == 2) {
-		//open file
-		std::string es;
-		std::ifstream fin(argv[1]);
-
+		fin.open(argv[1]);
 		int line_count = 1;
 
 		while (std::getline(fin, es, ';') && !isEmpty(es)) {
@@ -34,16 +33,8 @@ int main(int argc, char *argv[]) {
 			db->Execute(es + ";");
 		}
 	} else {
-		std::string es;
-
-		int line_count = 1;
-
-		while (std::getline(stdin, es, ';') && !isEmpty(es)) {
-			std::cout << "SDB SQL " << line_count << ": " << es << std::endl;
-			line_count++;
-			db->Execute(es + ";");
-		}
+		std::cerr << "Not input file specified.\n";
 	}
-	std::cout << "Bye!\n"
+	std::cout << "Bye!\n";
 	return 0;
 }

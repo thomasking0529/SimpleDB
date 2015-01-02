@@ -15,6 +15,7 @@
 #include <set>
 #include <cstdlib>
 #include <iostream>
+#include <sstream>
 
 #include "Exceptions.hpp"
 
@@ -43,6 +44,8 @@ struct Token {
 
 class Lexer {
 private:
+	//the column number
+	int count;
 	std::set<char> symbols;
 	std::set<std::string> ops;
 	//split input string into a list

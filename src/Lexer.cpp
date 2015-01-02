@@ -20,6 +20,7 @@ bool isId(const std::string& s) {
 }
 
 Lexer::Lexer() {
+	count = 0;
 	symbols.insert('+');
 	symbols.insert('-');
 	symbols.insert('*');
@@ -107,6 +108,7 @@ bool is_keyword(const std::string& s) {
 }
 
 std::list<Token> Lexer::GetTokens(const std::string& a) {
+	count=0;
 	std::list<std::string> tmp = split(a);
 	std::list<Token> ret;
 	for (auto& t : tmp) {
@@ -120,7 +122,7 @@ std::list<Token> Lexer::GetTokens(const std::string& a) {
 			if (t[0] >= '0' && t[0] <= '9') {
 				for (int i = 1; i < t.size(); i++) {
 					if (!(t[i] >= '0' && t[i] <= '9')) {
-						throw(new SDBException("Illegal Tokens"));
+						throw(new SDBLexerException("Illegal Tokens"));
 					}
 				}
 				ret.push_back(Token(NUM, t));
@@ -202,7 +204,9 @@ std::list<std::string> Lexer::split(const std::string& s) {
 				ret.push_back(std::string("") + s[i] + s[i]);
 				i++;
 			} else {
-				throw(new SDBException("Illegal Tokens"));
+				std::stringstream ss;
+				ss << "Illegal Token at col " << count << " detected.";
+				throw(SDBLexerException(ss.str()));
 			}
 		} else if (s[i] == '!') {
 			if (t != "") {
@@ -211,8 +215,11 @@ std::list<std::string> Lexer::split(const std::string& s) {
 			}
 			ret.push_back(std::string("") + s[i]);
 		} else {
-			throw(new SDBException("Illegal Tokens"));
+			std::stringstream ss;
+			ss << "Illegal Token at col " << count << " detected.";
+			throw(SDBLexerException(ss.str()));
 		}
+		count++;
 	}
 	if (t != "") {
 		ret.push_back(t);
