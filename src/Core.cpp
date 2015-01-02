@@ -9,13 +9,65 @@
 #include <sstream>
 #include <stdlib.h>
 
-void Table::Insert(const std::vector<int>& a) {
-	Row tmp = Row(a, key_idx, count);
+void Table::Insert(const std::vector<int>& a, const std::list<Property>& prop_list) {
+	// construct a row of values
+	std::vector<int> record;
+	std::vector<int>::const_iterator it_value;
+	std::list<Property>::const_iterator it_prop;
+	for (int i = 0; i < this->props.size(); i++) {
+		bool find = false;
+		for (it_value = a.begin(), it_prop = prop_list.begin(); it_prop != prop_list.end(); it_value++, it_prop++) {
+			if (this->props[i] == *it_prop) {
+				record.push_back(*it_value);
+				find = true;
+				break;
+			}
+		}
+		if (!find) {
+			record.push_back(this->props[i].default_value);
+		}
+	}
+
+	// insert that row
+	Row tmp = Row(record, key_idx, count);
 	if (rows.find(tmp) != rows.end()) {
-		std::cerr << "Key value conflicts!\n";
+		std::cerr << "Primary key constraint violation\n";
 	} else {
 		rows.insert(tmp);
 		count++;
+	}
+}
+
+bool isCondValid(const std::vector<Property> &props, const Condition* cond) {
+	if (cond == NULL) {
+		return true;
+	}
+	if (cond->opd != "no num") {
+		if (isNum(cond->opd)) {
+			return true;
+		} else {
+			// get value of that column
+			int index = -1;
+			for (unsigned int i = 0; i < props.size(); i++) {
+				if (props[i].id == cond->opd) {
+					index = i;
+					break;
+				}
+			}
+			if (index == -1) {
+				std::cerr << " columns occurring in the where clause (if any) should be in the schema of the table" << std::endl;
+				return false;
+			} else {
+				return true;
+			}
+		}
+	}
+
+	// when op is NOT
+	if (cond->op == NOT) {
+		return isCondValid(props, cond->rc);
+	} else {
+		return isCondValid(props, cond->rc) && (props, cond->lc);
 	}
 }
 
@@ -31,7 +83,7 @@ int checkCond(const std::vector<Property> &props, const Row &r,
 			return atoi(cond->opd.c_str());
 		} else {
 			// get value of that column
-			int index;
+			int index = -1;
 			for (unsigned int i = 0; i < props.size(); i++) {
 				if (props[i].id == cond->opd) {
 					index = i;
@@ -94,6 +146,12 @@ int checkCond(const std::vector<Property> &props, const Row &r,
 std::vector<int> Table::Query(const Condition* cond) {
 	std::vector<int> keyOfRows;
 	std::set<Row>::iterator it = rows.begin();
+
+	// check if the condition is valid
+	if (!isCondValid(props, cond)) {
+		return keyOfRows;
+	}
+
 	for (; it != rows.end(); it++) {
 
 		// test
@@ -125,7 +183,42 @@ void SimpleDB::Execute(const Statement& stmt) {
 
 	if (stmt.act == CREATE) {
 		if (it == tables.end()) {
-			// test if primary keys matches prop_list
+			// test if num of columns in a table is not greater than 100
+			if (stmt.prop_list.size() > 100) {
+				std::cerr << "Number of columns in a table should be no greater than 100!" << std::endl;
+				return;
+			}
+
+			// test if num of columns in primary key declaration is no greater than 100
+			if (stmt.key_idx.size() > 100) {
+				std::cerr << "Number of columns in primary key declaration should be no greater than 100!" << std::endl;
+				return;	
+			}
+
+
+			// test if there are duplicate column names
+			std::list<Property>::const_iterator it1, it2;
+			for (it1 = stmt.prop_list.begin(); it1 != stmt.prop_list.end(); it1++) {
+				it2 = it1;
+				for (it2++; it2 != stmt.prop_list.end(); it2++) {
+					if (it1->id == it2->id) {
+						std::cerr << "Duplicate column names found!"<< std::endl;
+						return;
+					}
+				}
+			}
+
+			// test if there are no duplicate primary keys
+			for (unsigned int i = 0; i < stmt.key_idx.size(); i++) {
+				for (int j = i+1; j < stmt.key_idx.size(); j++) {
+					if (stmt.key_idx[i] == stmt.key_idx[j]) {
+						std::cerr << "Duplicate primary keys found!" << std::endl;
+						return;
+					}
+				}
+			}
+
+			// test if primary keys contains only columns in the table
 			for (unsigned int i = 0; i < stmt.key_idx.size(); i++) {
 				bool findKey = false;
 				for (auto& p : stmt.prop_list) {
@@ -135,11 +228,11 @@ void SimpleDB::Execute(const Statement& stmt) {
 					}
 				}
 				if (!findKey) {
-					std::cerr << "primary key not in property list"
-							<< std::endl;
+					std::cerr << "primary key not in property list" << std::endl;
 					return;
 				}
 			}
+
 			tables.insert(t);
 		} else {
 			std::cerr << "Table name conflicts!\n";
@@ -150,14 +243,51 @@ void SimpleDB::Execute(const Statement& stmt) {
 			return;
 		}
 		switch (stmt.act) {
-		case DELETE:
+		case DELETE: {
 			const_cast<Table&>(*it).Delete(stmt.cond);
+		}
 			break;
-		case INSERT:
+		case INSERT: {
+			// test if there are duplicate columns
+			std::list<Property>::const_iterator it1, it2;
+			for (it1 = stmt.prop_list.begin(); it1 != stmt.prop_list.end(); it1++) {
+				it2 = it1;
+				for (it2++; it2 != stmt.prop_list.end(); it2++) {
+					if (it1->id == it2->id) {
+						std::cerr << "Duplicate column names found!"<< std::endl;
+						return;
+					}
+				}
+			}			
+
+			// test if all columns are in the schema of the table
+			for (it1 = stmt.prop_list.begin(); it1 != stmt.prop_list.end(); it1++) {
+				bool find = false;
+				for (int i = 0; i < it->props.size(); i++) {
+					if (it1->id == it->props[i].id) {
+						find = true;
+						break;
+					}
+				}
+				if (!find) {
+					std::cerr << "all columns should be in the schema of the table" << std::endl;
+					return;
+				}
+			}
+
+			// num of columns should equal to num of values
+			if (stmt.value_list.size() != stmt.prop_list.size()) {
+				std::cerr << "Number of columns should equal to Number of values"<< std::endl;
+				return;
+			}
+
 			// check primary key constraint violation(It is done in Table::Insert() )
-			const_cast<Table&>(*it).Insert(stmt.value_list);
+			const_cast<Table&>(*it).Insert(stmt.value_list, stmt.prop_list);
+		}
 			break;
 		case QUERY: {
+			// test if  all columns (except *) in the select list is in the schema of the table
+
 			// find keys of all rows that match the conditions
 			std::vector<int> keyOfRows = const_cast<Table&>(*it).Query(
 					stmt.cond);
@@ -172,11 +302,17 @@ void SimpleDB::Execute(const Statement& stmt) {
 				}
 			} else {
 				for (auto& i : stmt.prop_list) {
+					bool find = false;
 					ids.push_back(i.id);
 					for (unsigned int j = 0; j < it->props.size(); j++) {
 						if (it->props[j].id == i.id) {
 							indexes.push_back(j);
+							find = true;
 						}
+					}
+					if (!find) {
+						std::cerr << "all columns (except *) in the select list should be in the schema of the table" << std::endl;
+						return;
 					}
 				}
 			}

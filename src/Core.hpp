@@ -64,7 +64,7 @@ struct Table {
 
 	//insert a record into table
 	//if value not specified, use default value
-	void Insert(const std::vector<int>& record);
+	void Insert(const std::vector<int>& record, const std::list<Property>& prop_list);
 	//delete a record from table
 	void Delete(const Condition* cond);
 	// return keys of rows that matches the condition
