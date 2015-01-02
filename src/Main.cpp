@@ -34,15 +34,16 @@ int main(int argc, char *argv[]) {
 			db->Execute(es + ";");
 		}
 	} else {
-		Polish p;
-		p.Insert("32");
-		p.Insert("*");
-		p.Insert("3");
-		p.Insert("-");
-		p.Insert("6");
-		p.Insert("/");
-		p.Insert("2");
-		std::cout << p.Calculate() << std::endl;
+		std::string es;
+
+		int line_count = 1;
+
+		while (std::getline(stdin, es, ';') && !isEmpty(es)) {
+			std::cout << "SDB SQL " << line_count << ": " << es << std::endl;
+			line_count++;
+			db->Execute(es + ";");
+		}
 	}
+	std::cout << "Bye!\n"
 	return 0;
 }

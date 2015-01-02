@@ -2,7 +2,7 @@
  * Lexer.cpp
  *
  *  Created on: Nov 29, 2014
- *      Author: thomas
+ *      Author: Sun Jiacheng
  */
 
 #include "Lexer.hpp"
@@ -51,9 +51,6 @@ Lexer::Lexer() {
 
 /*EXAMPLE
  * select*from a__ where(1>0&&1<0||1<=0)
- * prettify:
- *    insert space before and after all symbols:
- *    select * from a__ where ( 1 > 0 && 1 < 0 || 1 <= 0 )
  * split:
  *    select
  *    *
@@ -75,7 +72,7 @@ Lexer::Lexer() {
  *    )
  *
  * match keyword first:
- *    select from where
+ *    select from where, etc.
  *    to_upper
  *
  * match symbols:
@@ -127,7 +124,7 @@ std::list<Token> Lexer::GetTokens(const std::string& a) {
 					}
 				}
 				ret.push_back(Token(NUM, t));
-				//ID
+			//ID
 			} else if ((t[0] >= 'a' && t[0] <= 'z')
 					|| (t[0] >= 'A' && t[0] <= 'Z') || t[0] == '_') {
 				ret.push_back(Token(ID, t));

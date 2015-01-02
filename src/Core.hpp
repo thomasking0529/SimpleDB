@@ -2,7 +2,7 @@
  * Core.hpp
  *
  *  Created on: Nov 21, 2014
- *      Author: thomas
+ *      Author: Sun Jiacheng, Sun Dongliang
  */
 
 #ifndef CORE_HPP_
@@ -61,11 +61,12 @@ struct Table {
 	unsigned long long count;
 	//use string to store various type of values
 	std::set<Row> rows;
-	//insert a record to table
+
+	//insert a record into table
 	//if value not specified, use default value
 	void Insert(const std::vector<int>& record);
+	//delete a record from table
 	void Delete(const Condition* cond);
-
 	// return keys of rows that matches the condition
 	std::vector<int> Query(const Condition* cond);
 
@@ -94,46 +95,21 @@ struct Table {
 };
 
 /*
- *
- * CREATE
- *    table name doesn't match with any existed table
- *
- * INSERT
- *    the table should exist
- *    no primary key constraint violation
- *    all columns should be in the schema of the table
- *    For a column without specified value, default
- *    value is used.
- *
- * WHERE
- *    columns occurring in the where clause (if any)
- *    should be in the schema of the table
- *
- * DELETE
- *    If there is a where clause, delete all rows
- *    whose where clause is evaluated to be TRUE.
- *    Otherwise, delete all rows in the table.
- *
- * SELECT
- *    If a where clause is present, those rows whose
- *    where clauses are evaluated to FALSE should
- *    be omitted. Otherwise, none should be omitted.
- *
- *    If '*' is present in the select list, all columns
- *    should be returned. Otherwise, return only
- *    those columns specified in the select list.
+ * Main backend of SimpleDB
  */
-
 class SimpleDB {
 private:
+	//execute a statement
 	void Execute(const Statement& stmt);
 	Parser* parser;
+	std::set<Table> tables;
 
 public:
-	std::set<Table> tables;
 	SimpleDB() {
+		//init parser
 		parser = new Parser();
 	}
+	//public method, execute raw string
 	void Execute(const std::string& stmt) {
 		Statement s;
 		try {

@@ -1,8 +1,8 @@
 /*
  * Core.cpp
  *
- *  Created on: Nov 21, 2014
- *      Author: thomas
+ *  Created on: Dec 29, 2014
+ *      Author: Sun Dongliang
  */
 
 #include "Core.hpp"
@@ -108,12 +108,6 @@ std::vector<int> Table::Query(const Condition* cond) {
 }
 
 void Table::Delete(const Condition* cond) {
-	/*
-	 * TODO:
-	 * check condition
-	 * delete rows;
-	 * don't decrease count
-	 */
 	// find rows that match the condition
 	std::vector<int> keyOfRows = Query(cond);
 

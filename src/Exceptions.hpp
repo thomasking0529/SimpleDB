@@ -5,11 +5,13 @@
 #include <string>
 #include <iostream>
 
+//common exception for SimpleDB
 class SDBException: std::exception {
 private:
 	std::string e;
 
 public:
+	//init with an error string
 	SDBException(const std::string& es) {
 		e = es;
 	}
