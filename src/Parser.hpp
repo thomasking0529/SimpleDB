@@ -501,6 +501,7 @@ private:
 	std::map<std::string, act> action;
 	std::stack<std::string> procedure;
 	std::string getTokenSymbol(Token t);
+	static std::string intToString(int num);
 public:
 	Parser();
 	Statement Parse(const std::string& s);
