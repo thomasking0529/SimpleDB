@@ -286,6 +286,9 @@ public:
 					} else if (to_ret == "-") {
 						nums.push(a - b);
 					} else if (to_ret == "/") {
+						if (b == 0) {
+							throw SDBException("can't devided by zero");
+						}
 						nums.push(a / b);
 					}
 				}
@@ -371,6 +374,9 @@ public:
 					} else if (to_ret == "/") {
 						int numa, numb;
 						if (isNum(numa, a->opd) && isNum(numb, b->opd)) {
+							if (numb == 0) {
+								throw SDBException("can't devided by zero");
+							}
 							int result = numa / numb;
 							char a[100];
 							sprintf(a, "%d", result);
