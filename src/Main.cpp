@@ -28,6 +28,11 @@ int main(int argc, char *argv[]) {
 		int line_count = 1;
 
 		while (std::getline(fin, es, ';') && !isEmpty(es)) {
+			for(int i = 0; i < es.size(); i++) {
+				if(es[i] == '\n') {
+					es.erase(i, 1);
+				}
+			}
 			std::cout << "SDB SQL " << line_count << ": " << es << std::endl;
 			line_count++;
 			db->Execute(es + ";");
