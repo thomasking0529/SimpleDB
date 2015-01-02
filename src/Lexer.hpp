@@ -17,7 +17,7 @@
 #include <iostream>
 #include <sstream>
 
-const int MAX_ID_LEN = 64
+const int MAX_ID_LEN = 64;
 
 #include "Exceptions.hpp"
 
