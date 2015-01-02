@@ -180,7 +180,7 @@ std::list<std::string> Lexer::split(const std::string& s) {
 		if (s[i] == ' ' || s[i] == '\t') {
 			saveTo(ret);
 			count++;
-		} else if (s[i] == '\n'){
+		} else if (s[i] == '\n' || s[i] == '\r'){
 			saveTo(ret);
 			count++;
 		} else if (symbols.find(s[i]) != symbols.end()) {
