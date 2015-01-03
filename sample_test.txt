@@ -33,3 +33,6 @@ DELETE FROM Student WHERE !age + 7 *3 > 19 + 6 && !!!sid <> 6 - 3 * - 2 || sid <
 select * from Student;
 select * from Student where( id != 0);
 select * from Student where( id |= 0);
+124ww123;
+123120 123 01w e20312 ;
+123-900 12i3 12 3oq[w e;
