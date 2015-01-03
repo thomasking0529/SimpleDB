@@ -13,6 +13,368 @@
 #include <fstream>  
 #include "Parser.hpp"
 
+/*
+ * constructor, init basic priority, and define operator
+ */
+Polish::Polish() {
+	level.insert(std::pair<std::string, int>("+", 3));
+	level.insert(std::pair<std::string, int>("-", 3));
+	level.insert(std::pair<std::string, int>("*", 4));
+	level.insert(std::pair<std::string, int>("/", 4));
+	level.insert(std::pair<std::string, int>("==", 1));
+	level.insert(std::pair<std::string, int>("<>", 1));
+	level.insert(std::pair<std::string, int>(">", 2));
+	level.insert(std::pair<std::string, int>("<", 2));
+	level.insert(std::pair<std::string, int>(">=", 2));
+	level.insert(std::pair<std::string, int>("<=", 2));
+	level.insert(std::pair<std::string, int>("!", 0));
+	level.insert(std::pair<std::string, int>("&&", -1));
+	level.insert(std::pair<std::string, int>("||", -2));
+	level.insert(std::pair<std::string, int>("(", -3));
+	level.insert(std::pair<std::string, int>(")", -3));
+	_ops.insert("+");
+	_ops.insert("-");
+	_ops.insert("*");
+	_ops.insert("/");
+	_ops.insert("<");
+	_ops.insert(">");
+	_ops.insert("<=");
+	_ops.insert(">=");
+	_ops.insert("==");
+	_ops.insert("<>");
+	_ops.insert("&&");
+	_ops.insert("||");
+	_ops.insert("!");
+	isNeglect = 0;
+	count = -1;
+	flag = false;
+}
+
+/* 
+ * - in expression  "-num" or "-id" found, reverse the flag, which can
+ * reduce somthing like ------num.
+ */
+void Polish::neglect() {
+	flag = !flag;
+}
+
+/*
+ * call when parser found a token in a expression, tranlate
+ * the token in the expression.
+ */
+void Polish::Insert(const std::string& item) {
+	if (_ops.find(item) != _ops.end()) {
+		// Unit operator ! found, make it become a binary one and 
+		// always give another operand "!!"
+		if (item == "!") Insert("!!");
+		while (!ops.empty() &&
+			level.find(item)->second <= level.find(ops.back())->second) {
+			rp.push(ops.back());
+			ops.pop_back();
+		}
+		ops.push_back(item);
+	} else if (item == "(") {
+		if (flag) {
+			// here is a situation where -(expression) is detected, we need
+			// to turn it to (0-(expression)). thus we begin counting the "("
+			// to see whether is time to insert the ")"
+			flag = false;
+			ops.push_back("(");
+			rp.push("0");
+			Insert("-");
+			isNeglect++;
+			count++;
+		} else if (count != -1) {
+			isNeglect++;
+		}
+		ops.push_back("(");
+	} else if (item == ")") {
+		if (count != -1) {
+			isNeglect--;
+			if (isNeglect == count) {
+				// time to insert ")" for (0-(expression))
+				while (ops.back() != "(") {
+					rp.push(ops.back());
+					ops.pop_back();
+				}
+				ops.pop_back();
+				count--;
+			}
+		}
+		while (ops.back() != "(") {
+			rp.push(ops.back());
+			ops.pop_back();
+		}
+		ops.pop_back();
+	} else {
+		if (flag) {
+			// - num or - id detected
+			int tm;
+			if (isNum(tm, item)) {
+				int result = -tm;
+				char a[100];
+				sprintf(a, "%d", result);
+				rp.push(std::string(a));
+			} else {
+				ops.push_back("(");
+				rp.push("0");
+				Insert("-");
+				rp.push(item);
+				while (ops.back() != "(") {
+					rp.push(ops.back());
+					ops.pop_back();
+				}
+				ops.pop_back();
+			}
+			flag = false;
+		} else {
+			rp.push(item);
+		}
+	}
+}
+
+/*
+ * if the math expression is translate, calculate the value of
+ * the expression. get two operand and an operator a time
+ * calculate and push back. until no operand
+ */
+int Polish::Calculate() {
+	std::stack<int> nums;
+	while (!ops.empty()) {
+		rp.push(ops.back());
+		ops.pop_back();
+	}
+	while (!rp.empty()) {
+		std::string to_ret = rp.front();
+		rp.pop();
+		if (_ops.find(to_ret) != _ops.end()) {
+			if (nums.size() < 2) {
+				std::cerr << "Wrong expression.\n";
+				return 0;
+			} else {
+				int b = nums.top();
+				nums.pop();
+				int a = nums.top();
+				nums.pop();
+				if (to_ret == "+") {
+					nums.push(a + b);
+				} else if (to_ret == "*") {
+					nums.push(a * b);
+				} else if (to_ret == "-") {
+					nums.push(a - b);
+				} else if (to_ret == "/") {
+					if (b == 0) {
+						throw SDBException("can't devided by zero");
+					}
+					nums.push(a / b);
+				}
+			}
+		} else {
+			nums.push(atoi(to_ret.c_str()));
+		}
+	}
+	if (nums.size() != 1) {
+		std::cerr << "Wrong expression.\n";
+		return 0;
+	} else {
+		int t = nums.top();
+		nums.pop();
+		return t;
+	}
+}
+
+/*
+ * if the bool expression is translate, build a condition tree of
+ * the expression. Get two operand and an operator a time
+ * build a Condtion node and push back. until no operand, the we
+ * get the root Condition node.
+ */
+Condition* Polish::buildTree() {
+	Condition *t = new Condition();
+	std::stack<Condition*> nums;
+	while (!ops.empty()) {
+		rp.push(ops.back());
+		ops.pop_back();
+	}
+	while (!rp.empty()) {
+		std::string to_ret = rp.front();
+		rp.pop();
+		if (_ops.find(to_ret) != _ops.end()) {
+			if (nums.size() < 2) {
+				std::cerr << "Wrong expression.\n";
+				return 0;
+			} else {
+				Condition* b = nums.top();
+				nums.pop();
+				Condition* a = nums.top();
+				nums.pop();
+				if (to_ret == "+") {
+					int numa, numb;
+					if (isNum(numa, a->opd) && isNum(numb, b->opd)) {
+						int result = numa + numb;
+						char a[100];
+						sprintf(a, "%d", result);
+						nums.push(new Condition(a));
+					} else {
+						Condition* re = new Condition();
+						re->lc = a;
+						re->rc = b;
+						re->opd = "no num";
+						re->op = PLUS;
+						nums.push(re);
+					}
+				} else if (to_ret == "*") {
+					int numa, numb;
+					if (isNum(numa, a->opd) && isNum(numb, b->opd)) {
+						int result = numa * numb;
+						char a[100];
+						sprintf(a, "%d", result);
+						nums.push(new Condition(a));
+					} else {
+						Condition* re = new Condition();
+						re->lc = a;
+						re->rc = b;
+						re->opd = "no num";
+						re->op = MULTIPLY;
+						nums.push(re);
+					}
+				} else if (to_ret == "-") {
+					int numa, numb;
+					if (isNum(numa, a->opd) && isNum(numb, b->opd)) {
+						int result = numa - numb;
+						char a[100];
+						sprintf(a, "%d", result);
+						nums.push(new Condition(a));
+					} else {
+						Condition* re = new Condition();
+						re->lc = a;
+						re->rc = b;
+						re->opd = "no num";
+						re->op = MINUS;
+						nums.push(re);
+					}
+				} else if (to_ret == "/") {
+					int numa, numb;
+					if (isNum(numa, a->opd) && isNum(numb, b->opd)) {
+						if (numb == 0) {
+							throw SDBException("can't devided by zero");
+						}
+						int result = numa / numb;
+						char a[100];
+						sprintf(a, "%d", result);
+						nums.push(new Condition(a));
+					} else {
+						Condition* re = new Condition();
+						re->lc = a;
+						re->rc = b;
+						re->opd = "no num";
+						re->op = DIVIDE;
+						nums.push(re);
+					}
+				} else if (to_ret == "<"){
+					Condition* re = new Condition();
+					re->lc = a;
+					re->rc = b;
+					re->opd = "no num";
+					re->op = LT;
+					nums.push(re);
+				} else if (to_ret == ">"){
+					Condition* re = new Condition();
+					re->lc = a;
+					re->rc = b;
+					re->opd = "no num";
+					re->op = GT;
+					nums.push(re);
+				} else if (to_ret == "<="){
+					Condition* re = new Condition();
+					re->lc = a;
+					re->rc = b;
+					re->opd = "no num";
+					re->op = LTE;
+					nums.push(re);
+				} else if (to_ret == ">="){
+					Condition* re = new Condition();
+					re->lc = a;
+					re->rc = b;
+					re->opd = "no num";
+					re->op = GTE;
+					nums.push(re);
+				} else if (to_ret == "<>"){
+					Condition* re = new Condition();
+					re->lc = a;
+					re->rc = b;
+					re->opd = "no num";
+					re->op = NE;
+					nums.push(re);
+				} else if (to_ret == "=="){
+					Condition* re = new Condition();
+					re->lc = a;
+					re->rc = b;
+					re->opd = "no num";
+					re->op = EQ;
+					nums.push(re);
+				} else if (to_ret == "&&"){
+					Condition* re = new Condition();
+					re->lc = a;
+					re->rc = b;
+					re->opd = "no num";
+					re->op = AND;
+					nums.push(re);
+				} else if (to_ret == "||"){
+					Condition* re = new Condition();
+					re->lc = a;
+					re->rc = b;
+					re->opd = "no num";
+					re->op = OR;
+					nums.push(re);
+				} else if (to_ret == "!") {
+					if (a->opd == "!!" && b->opd == "!!") {
+						nums.push(a);
+					} else if (a->opd == "!!") {
+						Condition* re = new Condition();
+						re->lc = b;
+						re->opd = "no num";
+						re->op = NOT;
+						nums.push(re);
+					} else {
+						std::cerr << "Wrong expression.\n";
+						return 0;
+					}
+				}
+			} 
+		} else {
+			Condition* tmp = new Condition();
+			tmp->opd = to_ret;
+			nums.push(tmp);
+		}
+	}
+	if (nums.size() != 1) {
+		std::cerr << "Wrong expression.\n";
+		return 0;
+	} else {
+		Condition* t = nums.top();
+		nums.pop();
+		return t;
+	}
+}
+
+/*
+ * common fuction for testing  whether a string is an number
+ * and if it is, the number store in num.
+ */
+bool Polish::isNum(int &num, std::string str) {
+	int i = 0;
+	while (str[i] == '-') i++;
+	for (; i < str.size(); i++) {
+		if (str[i] > '9' || str[i] < '0') {
+			return false;
+		}
+	}
+	num = std::atoi(str.c_str());
+	return true;
+}
+
+// Parser constructor, call init function.
 Parser::Parser() {
 	initTable();
 	initTerminal();
@@ -20,7 +382,7 @@ Parser::Parser() {
 	lexer = new Lexer();
 }
 
-//init rules set
+//init the predictive parsing table, 
 void Parser::initTable() {
 	FILE* file = fopen(RULE, "r");
 	if (file == NULL) {
@@ -44,7 +406,7 @@ void Parser::initTable() {
 	fclose(file);
 }
 
-//init terminals set
+//init terminals set which defines which token is terminal
 void Parser::initTerminal() {
 	FILE* file = fopen(TERMINAL, "r");
 	if (file == NULL) {
@@ -59,19 +421,27 @@ void Parser::initTerminal() {
 	}
 	fclose(file);
 }
-
+/*
+ * init the action table, which define when valid token t need to translate into the 
+ * Statement s,  given the Grammar Productions' left part where this token
+ * is produced to help the translation, and if token is in an expression, the
+ * Polish calc will be useful.
+ */
 void Parser::initAction() {
 	std::for_each(terminal.begin(), terminal.end(), 
 		[&](const std::string& ter){
 			action[ter] = [](Statement &s, Token t, std::string father, Polish* &calc) {
-				//printf("%s", t.value.c_str());
+				// for those token has no use, give empty action
 			};
 	});
 	action["select"] = [](Statement &s, Token t, std::string father, Polish* &calc) {s.act = QUERY;};
 	action["create"] = [](Statement &s, Token t, std::string father, Polish* &calc) {s.act = CREATE;};
 	action["insert"] = [](Statement &s, Token t, std::string father, Polish* &calc) {s.act = INSERT;};
 	action["delete"] = [](Statement &s, Token t, std::string father, Polish* &calc) {s.act = DELETE;};
-	action["where"] = [](Statement &s, Token t, std::string father, Polish* &calc) {calc = new Polish();};
+	action["where"] = [](Statement &s, Token t, std::string father, Polish* &calc) {
+		// need an Polish to calculate bool expression
+		calc = new Polish();
+	};
 	action["id"] = [](Statement &s, Token t, std::string father, Polish* &calc) {
 		if (father == "create_stmt" || father == "insert_stmt"
 			|| father == "delete_stmt" || father == "query_stmt"){
@@ -179,6 +549,7 @@ void Parser::initAction() {
 			calc->Insert(t.value);
 		} else if (father == "simple_unary"){
 			if (calc == NULL) {
+				// need an Polish to calculate math expression
 				calc = new Polish();
 			}
 		} else if (calc != NULL && father == "expr*"){
@@ -194,12 +565,14 @@ void Parser::initAction() {
 			calc->Insert(t.value);
 		} else if (father == "simple_unary"){
 			if (calc == NULL) {
+				// need an Polish to calculate math expression
 				calc = new Polish();
 			}
 			calc->neglect();
 		} else if (calc != NULL && father == "expr*"){
 			calc->Insert(t.value);
 		} else if (calc != NULL && father == "unary"){
+			// unit operator - found
 			calc->neglect();
 		} else {
 			throw SDBException("inside logically mistake \"" + t.value
@@ -210,6 +583,7 @@ void Parser::initAction() {
 	action["("] = [](Statement &s, Token t, std::string father, Polish* &calc) {
 		if (father == "simple_unary"){
 			if (calc == NULL) {
+				// need an Polish to calculate math expression
 				calc = new Polish();
 			}
 			calc->Insert(t.value);
@@ -287,6 +661,10 @@ void Parser::initAction() {
 
 }
 
+/*
+ * common function to get the token sysbol in the  grammar production
+ * to see whether the token match a sysbol in production.
+ */
 std::string Parser::getTokenSymbol(Token t) {
 	if (t.type == NUM) {
 		return "num";
@@ -320,6 +698,7 @@ Statement Parser::Parse(const std::string& s) {
 	while (top != "$") {
 		father.pop();
 		if (top == "#") {
+			// skip symbol, do nothing
 			procedure.pop();
 		} else if (terminal.count(top) > 0) {
 			if (getTokenSymbol(ts.front()) != top) {
@@ -355,6 +734,9 @@ Statement Parser::Parse(const std::string& s) {
 	return st;
 }
 
+/*
+ * turn a num into string
+ */
 std::string Parser::intToString(int num) {
 	char a[100];
 	sprintf(a, "%d", num);
