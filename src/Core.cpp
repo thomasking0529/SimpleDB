@@ -65,7 +65,7 @@ bool isCondValid(const std::vector<Property> &props, const Condition* cond) {
 
 	// when op is NOT
 	if (cond->op == NOT) {
-		return isCondValid(props, cond->rc);
+		return isCondValid(props, cond->lc);
 	} else {
 		return isCondValid(props, cond->rc) && (props, cond->lc);
 	}
@@ -94,51 +94,57 @@ int checkCond(const std::vector<Property> &props, const Row &r,
 		}
 	}
 
-	int rightOp;
-	rightOp = checkCond(props, r, cond->rc);
+	int leftOp;
+	leftOp = checkCond(props, r, cond->lc) ;
 
 	// test	
-	// std::cerr << "rightOp: " << rightOp << std::endl;
+	// std::cerr << "leftOp: " << leftOp << std::endl;
 	// test
 
 	// when op is NOT
 	if (cond->op == NOT) {
-		return (!rightOp);
+		return (!leftOp);
 	}
 
 	// when op is AND/OR/LT/GT/NE/EQ/GTE/LTE, just fetch two operands
-	int leftOp;
-	leftOp = checkCond(props, r, cond->lc) ;
+	int rightOp;
+	rightOp = checkCond(props, r, cond->rc);
 
 	// test
-	// std::cerr << "leftOp: " << leftOp << std::endl;
+	// std::cerr << "rightOp: " << rightOp << std::endl;
 	// test
 
 	switch (cond->op) {
-	case AND:
-		return leftOp && rightOp;
-	case OR:
-		return leftOp || rightOp;
-	case LT:
-		return (leftOp < rightOp);
-	case GT:
-		return (leftOp > rightOp);
-	case NE:
-		return (leftOp != rightOp);
-	case EQ:
-		return (leftOp == rightOp);
-	case GTE:
-		return (leftOp >= rightOp);
-	case LTE:
-		return (leftOp <= rightOp);
-	case PLUS:
-		return (leftOp+rightOp);
-	case MINUS:
-		return (leftOp-rightOp);
-	case MULTIPLY:
-		return (leftOp*rightOp);
-	case DIVIDE:
-		return (leftOp/rightOp);
+		case AND:
+			return leftOp && rightOp;
+		case OR:
+			return leftOp || rightOp;
+		case LT:
+			return (leftOp < rightOp);
+		case GT:
+			return (leftOp > rightOp);
+		case NE:
+			return (leftOp != rightOp);
+		case EQ:
+			return (leftOp == rightOp);
+		case GTE:
+			return (leftOp >= rightOp);
+		case LTE:
+			return (leftOp <= rightOp);
+		case PLUS:
+			return (leftOp+rightOp);
+		case MINUS:
+			return (leftOp-rightOp);
+		case MULTIPLY:
+			return (leftOp*rightOp);
+		case DIVIDE: {
+			if (rightOp == 0) {
+				std::cerr << "divide by zero error, set result as 1" << std::endl;
+				return 1;
+			} else {
+				return (leftOp/rightOp);
+			}
+		}
 	}
 	return false;
 }
